@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Contao\CoreBundle\Framework\ContaoFramework;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\Renaming\Rector\Name\RenameClassRector;
@@ -11,7 +10,10 @@ use Rector\Renaming\Rector\Name\RenameClassRector;
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->ruleWithConfiguration(RenameClassRector::class, [
         // Deprecated in Contao 4.1
-        ContaoFrameworkInterface::class => ContaoFramework::class,
+        Contao\CoreBundle\ContaoFrameworkInterface::class => ContaoFramework::class,
+
+        // Deprecated in Contao 4.7
+        Contao\CoreBundle\Framework\ContaoFrameworkInterface::class => ContaoFramework::class,
     ]);
 
     $rectorConfig->ruleWithConfiguration(RenameFunctionRector::class, [
