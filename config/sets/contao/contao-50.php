@@ -31,4 +31,5 @@ return static function (RectorConfig $rectorConfig): void {
     // TODO: remove use of utf8_romanize
 
     // TODO: StringUtil::parseSimpleTokens should be replaced with contao.string.simple_token_parser service
+    // TODO: DcaLoader::load() with the $blnNoCache parameter has been deprecated
 };

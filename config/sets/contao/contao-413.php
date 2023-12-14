@@ -2,17 +2,24 @@
 
 declare(strict_types=1);
 
+use Contao\ArrayUtil;
+use Contao\Folder;
+use Contao\StringUtil;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
+use Rector\Transform\Rector\FuncCall\FuncCallToStaticCallRector;
+use Rector\Transform\ValueObject\FuncCallToStaticCall;
 
 return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->ruleWithConfiguration(RenameFunctionRector::class, [
-        // Added in Contao 4.10
-        'scan' => 'Contao\Folder::scan',
-        'ampersand' => 'Contao\StringUtil::ampersand',
-        'array_insert' => 'Contao\ArrayUtil::arrayInsert',
-        'array_is_assoc' => 'Contao\ArrayUtil::isAssoc',
+    $rectorConfig->ruleWithConfiguration(FuncCallToStaticCallRector::class, [
+        // Contao 4.10
+        new FuncCallToStaticCall('scan', Folder::class, 'scan'),
+        new FuncCallToStaticCall('ampersand', StringUtil::class, 'ampersand'),
+        new FuncCallToStaticCall('array_insert', ArrayUtil::class, 'arrayInsert'),
+        new FuncCallToStaticCall('array_is_assoc', ArrayUtil::class, 'isAssoc'),
+    ]);
 
+    $rectorConfig->ruleWithConfiguration(RenameFunctionRector::class, [
         // see contao/contao#3530
         'utf8_chr' => 'mb_chr',
         'utf8_ord' => 'mb_ord',
