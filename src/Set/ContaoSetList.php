@@ -26,6 +26,11 @@ final class ContaoSetList implements SetListInterface
     /**
      * @var string
      */
+    final public const CONTAO_53 = __DIR__ . '/../../config/sets/contao/contao-53.php';
+
+    /**
+     * @var string
+     */
     final public const ANNOTATIONS_TO_ATTRIBUTES = __DIR__ . '/../../config/sets/contao/annotations-to-attributes.php';
 
     /**

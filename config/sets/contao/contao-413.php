@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 use Contao\ArrayUtil;
+use Contao\BackendUser;
+use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\Folder;
 use Contao\StringUtil;
 use Rector\Config\RectorConfig;
+use Rector\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
+use Rector\Renaming\ValueObject\RenameClassAndConstFetch;
 use Rector\Transform\Rector\FuncCall\FuncCallToStaticCallRector;
 use Rector\Transform\ValueObject\FuncCallToStaticCall;
 
@@ -32,5 +36,14 @@ return static function (RectorConfig $rectorConfig): void {
         'utf8_strtoupper' => 'mb_strtoupper',
         'utf8_substr' => 'mb_substr',
         'utf8_str_split' => 'mb_str_split',
+    ]);
+
+    $rectorConfig->ruleWithConfiguration(RenameClassConstFetchRector::class, [
+        new RenameClassAndConstFetch(BackendUser::class, 'CAN_EDIT_PAGE', ContaoCorePermissions::class, 'USER_CAN_EDIT_PAGE'),
+        new RenameClassAndConstFetch(BackendUser::class, 'CAN_EDIT_PAGE_HIERARCHY', ContaoCorePermissions::class, 'USER_CAN_EDIT_PAGE_HIERARCHY'),
+        new RenameClassAndConstFetch(BackendUser::class, 'CAN_DELETE_PAGE', ContaoCorePermissions::class, 'USER_CAN_DELETE_PAGE'),
+        new RenameClassAndConstFetch(BackendUser::class, 'CAN_EDIT_ARTICLES', ContaoCorePermissions::class, 'USER_CAN_EDIT_ARTICLES'),
+        new RenameClassAndConstFetch(BackendUser::class, 'CAN_EDIT_ARTICLE_HIERARCHY', ContaoCorePermissions::class, 'USER_CAN_EDIT_ARTICLE_HIERARCHY'),
+        new RenameClassAndConstFetch(BackendUser::class, 'CAN_DELETE_ARTICLES', ContaoCorePermissions::class, 'USER_CAN_DELETE_ARTICLES'),
     ]);
 };
