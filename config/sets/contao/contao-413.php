@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 use Contao\ArrayUtil;
 use Contao\BackendUser;
+use Contao\Controller;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\Folder;
+use Contao\Rector\Rector\InsertTagsServiceRector;
+use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
+use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
 use Contao\StringUtil;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector;
@@ -46,4 +50,15 @@ return static function (RectorConfig $rectorConfig): void {
         new RenameClassAndConstFetch(BackendUser::class, 'CAN_EDIT_ARTICLE_HIERARCHY', ContaoCorePermissions::class, 'USER_CAN_EDIT_ARTICLE_HIERARCHY'),
         new RenameClassAndConstFetch(BackendUser::class, 'CAN_DELETE_ARTICLES', ContaoCorePermissions::class, 'USER_CAN_DELETE_ARTICLES'),
     ]);
+
+    $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToServiceCallRector::class, [
+        // Contao 4.10
+        new LegacyFrameworkCallToServiceCall(Controller::class, 'parseSimpleTokens', 'contao.string.simple_token_parser', 'parse'),
+    ]);
+
+    // Contao 4.13
+    $rectorConfig->rule(InsertTagsServiceRector::class);
+
+    // Contao 4.12
+    //'Contao\FrontendUser::isMemberOf($ids)' => 'Contao\System::getContainer()->get(\'security.helper\')->isGranted(ContaoCorePermissions::MEMBER_IN_GROUPS, $ids)',
 };
