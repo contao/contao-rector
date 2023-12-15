@@ -44,6 +44,6 @@ CODE_AFTER
             return $node;
         }
 
-        return $node;
+        return null;
     }
 }
