@@ -54,6 +54,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToServiceCallRector::class, [
         // Contao 4.10
         new LegacyFrameworkCallToServiceCall(Controller::class, 'parseSimpleTokens', 'contao.string.simple_token_parser', 'parse'),
+        new LegacyFrameworkCallToServiceCall(StringUtil::class, 'parseSimpleTokens', 'contao.string.simple_token_parser', 'parse'),
     ]);
 
     // Contao 4.13
