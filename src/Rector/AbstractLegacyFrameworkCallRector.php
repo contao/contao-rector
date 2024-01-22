@@ -7,8 +7,8 @@ namespace Contao\Rector\Rector;
 use PhpParser\Node;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Type\ObjectType;
-use Rector\Core\Rector\AbstractRector;
-use Rector\Core\Reflection\ReflectionResolver;
+use Rector\Rector\AbstractRector;
+use Rector\Reflection\ReflectionResolver;
 
 abstract class AbstractLegacyFrameworkCallRector extends AbstractRector
 {

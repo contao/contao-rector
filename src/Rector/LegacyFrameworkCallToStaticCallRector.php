@@ -6,7 +6,7 @@ namespace Contao\Rector\Rector;
 
 use Contao\Rector\ValueObject\LegacyFrameworkCallToStaticCall;
 use PhpParser\Node;
-use Rector\Core\Contract\Rector\ConfigurableRectorInterface;
+use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
