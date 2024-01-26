@@ -22,7 +22,7 @@ final class ModeConstantToScopeMatcherRector extends AbstractRector
 {
     public function getRuleDefinition(): RuleDefinition
     {
-        return new RuleDefinition('Fixes deprecated constants to service calls', [
+        return new RuleDefinition('Fixes deprecated TL_MODE constant to service call', [
             new CodeSample(
                 <<<'CODE_BEFORE'
 $isBackend = TL_MODE === 'BE';

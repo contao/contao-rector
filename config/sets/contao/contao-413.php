@@ -9,6 +9,7 @@ use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\Folder;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
+use Contao\Rector\Rector\SystemLanguagesToServiceRector;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
 use Contao\StringUtil;
 use Rector\Config\RectorConfig;
@@ -56,6 +57,9 @@ return static function (RectorConfig $rectorConfig): void {
         new LegacyFrameworkCallToServiceCall(Controller::class, 'parseSimpleTokens', 'contao.string.simple_token_parser', 'parse'),
         new LegacyFrameworkCallToServiceCall(StringUtil::class, 'parseSimpleTokens', 'contao.string.simple_token_parser', 'parse'),
     ]);
+
+    // Contao 4.12
+    $rectorConfig->rule(SystemLanguagesToServiceRector::class);
 
     // Contao 4.13
     $rectorConfig->rule(InsertTagsServiceRector::class);
