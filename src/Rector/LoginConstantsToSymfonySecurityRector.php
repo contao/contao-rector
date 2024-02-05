@@ -39,7 +39,6 @@ CODE_AFTER
     public function getNodeTypes(): array
     {
         return [
-            BooleanAnd::class,
             Equal::class,
             NotEqual::class,
             Identical::class,
@@ -50,6 +49,14 @@ CODE_AFTER
 
     public function refactor(Node $node): ?Node
     {
+        assert([
+            $node instanceof Equal
+            || $node instanceof NotEqual
+            || $node instanceof Identical
+            || $node instanceof NotIdentical
+            || $node instanceof ConstFetch
+        ]);
+
         if ($node instanceof ConstFetch) {
             $value = $node;
             $compare = null;
@@ -60,6 +67,10 @@ CODE_AFTER
             $value = $node->left;
             $compare = $this->nodeTypeResolver->getType($node->right);
         } else {
+            return null;
+        }
+
+        if (!$value->name instanceof Node) {
             return null;
         }
 
