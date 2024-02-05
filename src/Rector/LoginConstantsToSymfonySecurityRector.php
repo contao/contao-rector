@@ -5,6 +5,14 @@ declare(strict_types=1);
 namespace Contao\Rector\Rector;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\BinaryOp;
+use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
+use PhpParser\Node\Expr\BinaryOp\Equal;
+use PhpParser\Node\Expr\BinaryOp\Identical;
+use PhpParser\Node\Expr\BinaryOp\NotEqual;
+use PhpParser\Node\Expr\BinaryOp\NotIdentical;
+use PhpParser\Node\Expr\ConstFetch;
+use PHPStan\Type\Constant\ConstantBooleanType;
 use Rector\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
@@ -31,30 +39,62 @@ CODE_AFTER
     public function getNodeTypes(): array
     {
         return [
-            Node\Expr\ConstFetch::class,
+            BooleanAnd::class,
+            Equal::class,
+            NotEqual::class,
+            Identical::class,
+            NotIdentical::class,
+            ConstFetch::class,
         ];
     }
 
     public function refactor(Node $node): ?Node
     {
-        assert($node instanceof Node\Expr\ConstFetch);
-
-        if ($this->isName($node->name, 'FE_USER_LOGGED_IN')) {
-            $container = new Node\Expr\StaticCall(new Node\Name\FullyQualified('Contao\System'), 'getContainer');
-            $service = new Node\Expr\MethodCall($container, 'get', [new Node\Arg(new Node\Scalar\String_('security.helper'))]);
-            $node = new Node\Expr\MethodCall($service, new Node\Identifier('isGranted'), [new Node\Arg(new Node\Scalar\String_('ROLE_MEMBER'))]);
-
-            return $node;
+        if ($node instanceof ConstFetch) {
+            $value = $node;
+            $compare = null;
+        } elseif ($node instanceof BinaryOp && $this->nodeTypeResolver->getType($node->left) instanceof ConstantBooleanType) {
+            $value = $node->right;
+            $compare = $this->nodeTypeResolver->getType($node->left);
+        } elseif ($node instanceof BinaryOp && $this->nodeTypeResolver->getType($node->right) instanceof ConstantBooleanType) {
+            $value = $node->left;
+            $compare = $this->nodeTypeResolver->getType($node->right);
+        } else {
+            return null;
         }
 
-        if ($this->isName($node->name, 'BE_USER_LOGGED_IN')) {
+        if ($this->isName($value->name, 'FE_USER_LOGGED_IN')) {
+            $container = new Node\Expr\StaticCall(new Node\Name\FullyQualified('Contao\System'), 'getContainer');
+            $service = new Node\Expr\MethodCall($container, 'get', [new Node\Arg(new Node\Scalar\String_('security.helper'))]);
+            $call = new Node\Expr\MethodCall($service, new Node\Identifier('isGranted'), [new Node\Arg(new Node\Scalar\String_('ROLE_MEMBER'))]);
+
+            return $this->handleBinaryOperation($node, $compare, $call);
+        }
+
+        if ($this->isName($value->name, 'BE_USER_LOGGED_IN')) {
             $container = new Node\Expr\StaticCall(new Node\Name\FullyQualified('Contao\System'), 'getContainer');
             $service = new Node\Expr\MethodCall($container, 'get', [new Node\Arg(new Node\Scalar\String_('contao.security.token_checker'))]);
-            $node = new Node\Expr\MethodCall($service, new Node\Identifier('isPreviewMode'));
+            $call = new Node\Expr\MethodCall($service, new Node\Identifier('isPreviewMode'));
 
-            return $node;
+            return $this->handleBinaryOperation($node, $compare, $call);
         }
 
         return null;
+    }
+
+    private function handleBinaryOperation(Node $node, ConstantBooleanType|null $compare, Node\Expr\MethodCall $call): Node
+    {
+        if (!$compare) {
+            return $call;
+        }
+
+        if (
+            (($node instanceof NotEqual || $node instanceof NotIdentical) && true === $compare->getValue())
+            || (($node instanceof Equal || $node instanceof Identical) && false === $compare->getValue())
+        ) {
+            return new Node\Expr\BooleanNot($call);
+        }
+
+        return $call;
     }
 }
