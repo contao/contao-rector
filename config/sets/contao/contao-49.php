@@ -7,6 +7,7 @@ use Contao\Backend;
 use Contao\ContentElement;
 use Contao\Controller;
 use Contao\CoreBundle\Framework\ContaoFramework;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\Database;
 use Contao\Environment;
 use Contao\FileUpload;
@@ -14,18 +15,21 @@ use Contao\Folder;
 use Contao\Image;
 use Contao\Input;
 use Contao\Module;
+use Contao\Rector\Rector\ConstantToClassConstantRector;
 use Contao\Rector\Rector\ConstantToServiceParameterRector;
 use Contao\Rector\Rector\ControllerMethodToVersionsClassRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToInstanceCallRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToStaticCallRector;
 use Contao\Rector\Rector\LoginConstantsToSymfonySecurityRector;
 use Contao\Rector\Rector\ModeConstantToScopeMatcherRector;
+use Contao\Rector\ValueObject\ConstantToClassConstant;
 use Contao\Rector\ValueObject\ConstantToServiceParameter;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToInstanceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToStaticCall;
 use Contao\StringUtil;
 use Contao\Widget;
 use Rector\Config\RectorConfig;
+use Rector\Renaming\Rector\ConstFetch\RenameConstantRector;
 use Rector\Renaming\Rector\MethodCall\RenameMethodRector;
 use Rector\Renaming\Rector\Name\RenameClassRector;
 use Rector\Renaming\ValueObject\MethodCallRename;
@@ -99,6 +103,20 @@ return static function (RectorConfig $rectorConfig): void {
 
     $rectorConfig->ruleWithConfiguration(ConstantToServiceParameterRector::class, [
         new ConstantToServiceParameter('TL_ROOT', 'kernel.project_dir'),
+    ]);
+
+    // Contao 4.2
+    $rectorConfig->ruleWithConfiguration(ConstantToClassConstantRector::class, [
+        new ConstantToClassConstant('TL_ERROR', ContaoContext::class, 'ERROR'),
+        new ConstantToClassConstant('TL_ACCESS', ContaoContext::class, 'ACCESS'),
+        new ConstantToClassConstant('TL_GENERAL', ContaoContext::class, 'GENERAL'),
+        new ConstantToClassConstant('TL_FILES', ContaoContext::class, 'FILES'),
+        new ConstantToClassConstant('TL_CRON', ContaoContext::class, 'CRON'),
+        new ConstantToClassConstant('TL_FORMS', ContaoContext::class, 'FORMS'),
+        new ConstantToClassConstant('TL_EMAIL', ContaoContext::class, 'EMAIL'),
+        new ConstantToClassConstant('TL_CONFIGURATION', ContaoContext::class, 'CONFIGURATION'),
+        new ConstantToClassConstant('TL_NEWSLETTER', ContaoContext::class, 'NEWSLETTER'),
+        new ConstantToClassConstant('TL_REPOSITORY', ContaoContext::class, 'REPOSITORY'),
     ]);
 
     $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToInstanceCallRector::class, [
