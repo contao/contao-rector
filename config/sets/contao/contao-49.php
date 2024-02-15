@@ -22,6 +22,7 @@ use Contao\Rector\Rector\LegacyFrameworkCallToInstanceCallRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToStaticCallRector;
 use Contao\Rector\Rector\LoginConstantsToSymfonySecurityRector;
 use Contao\Rector\Rector\ModeConstantToScopeMatcherRector;
+use Contao\Rector\Rector\SystemLogToMonologRector;
 use Contao\Rector\ValueObject\ConstantToClassConstant;
 use Contao\Rector\ValueObject\ConstantToServiceParameter;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToInstanceCall;
@@ -127,6 +128,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->rule(LoginConstantsToSymfonySecurityRector::class);
     $rectorConfig->rule(ControllerMethodToVersionsClassRector::class);
     $rectorConfig->rule(ModeConstantToScopeMatcherRector::class);
+    $rectorConfig->rule(SystemLogToMonologRector::class);
 
     //'Contao\Controller::getBackendLanguages()' => 'Contao\System::getContainer()->get(\'contao.intl.locales\')->getEnabledLocales(null, true)',
 };
