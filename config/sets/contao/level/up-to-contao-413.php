@@ -7,7 +7,7 @@ use Contao\Rector\Set\ContaoSetList;
 use Rector\Config\RectorConfig;
 use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\Set\ValueObject\LevelSetList;
-use Rector\Symfony\Set\SymfonyLevelSetList;
+use Rector\Symfony\Set\SymfonySetList;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->sets([
@@ -16,6 +16,11 @@ return static function (RectorConfig $rectorConfig): void {
         LevelSetList::UP_TO_PHP_74,
         DoctrineSetList::DOCTRINE_DBAL_30,
         DoctrineSetList::DOCTRINE_ORM_29,
-        SymfonyLevelSetList::UP_TO_SYMFONY_54,
+        SymfonySetList::SYMFONY_50,
+        SymfonySetList::SYMFONY_50_TYPES,
+        SymfonySetList::SYMFONY_51,
+        SymfonySetList::SYMFONY_52,
+        SymfonySetList::SYMFONY_53,
+        SymfonySetList::SYMFONY_54,
     ]);
 };
