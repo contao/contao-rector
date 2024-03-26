@@ -27,4 +27,9 @@ final class ContaoLevelSetList implements SetListInterface
      * @var string
      */
     final public const UP_TO_CONTAO_51 = __DIR__ . '/../../config/sets/contao/level/up-to-contao-51.php';
+
+    /**
+     * @var string
+     */
+    final public const UP_TO_CONTAO_53 = __DIR__ . '/../../config/sets/contao/level/up-to-contao-53.php';
 }
