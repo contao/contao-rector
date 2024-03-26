@@ -8,7 +8,7 @@ use Rector\Config\RectorConfig;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->sets([
-        ContaoLevelSetList::UP_TO_CONTAO_50,
+        ContaoLevelSetList::UP_TO_CONTAO_51,
         ContaoSetList::CONTAO_53,
     ]);
 };
