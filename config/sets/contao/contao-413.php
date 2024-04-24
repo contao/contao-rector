@@ -12,12 +12,15 @@ use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
 use Contao\StringUtil;
+use Patchwork\Utf8;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\Renaming\ValueObject\RenameClassAndConstFetch;
 use Rector\Transform\Rector\FuncCall\FuncCallToStaticCallRector;
+use Rector\Transform\Rector\StaticCall\StaticCallToFuncCallRector;
 use Rector\Transform\ValueObject\FuncCallToStaticCall;
+use Rector\Transform\ValueObject\StaticCallToFuncCall;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->ruleWithConfiguration(FuncCallToStaticCallRector::class, [
@@ -41,6 +44,11 @@ return static function (RectorConfig $rectorConfig): void {
         'utf8_strtoupper' => 'mb_strtoupper',
         'utf8_substr' => 'mb_substr',
         'utf8_str_split' => 'mb_str_split',
+    ]);
+
+    $rectorConfig->ruleWithConfiguration(StaticCallToFuncCallRector::class, [
+        new StaticCallToFuncCall(Utf8::class, 'strtoupper', 'mb_strtoupper'),
+        new StaticCallToFuncCall(Utf8::class, 'mb_strtolower', 'mb_strtolower'),
     ]);
 
     $rectorConfig->ruleWithConfiguration(RenameClassConstFetchRector::class, [
