@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Contao\Rector\Tests\Rector\ConstantToServiceCallRector;
+namespace Contao\Rector\Tests\Rector\ConstantToClassConstantRector;
 
 use Iterator;
 use PHPUnit\Framework\Attributes\DataProvider;
