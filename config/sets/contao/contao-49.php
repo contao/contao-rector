@@ -22,6 +22,7 @@ use Contao\Rector\Rector\LegacyFrameworkCallToInstanceCallRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToStaticCallRector;
 use Contao\Rector\Rector\LoginConstantsToSymfonySecurityRector;
 use Contao\Rector\Rector\ModeConstantToScopeMatcherRector;
+use Contao\Rector\Rector\SystemImageSizesToServiceRector;
 use Contao\Rector\Rector\SystemLogToMonologRector;
 use Contao\Rector\ValueObject\ConstantToClassConstant;
 use Contao\Rector\ValueObject\ConstantToServiceParameter;
@@ -105,6 +106,9 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->ruleWithConfiguration(ConstantToServiceParameterRector::class, [
         new ConstantToServiceParameter('TL_ROOT', 'kernel.project_dir'),
     ]);
+
+    // Contao 4.1
+    $rectorConfig->rule(SystemImageSizesToServiceRector::class);
 
     // Contao 4.2
     $rectorConfig->ruleWithConfiguration(ConstantToClassConstantRector::class, [
