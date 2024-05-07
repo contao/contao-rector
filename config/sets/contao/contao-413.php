@@ -6,6 +6,7 @@ use Contao\ArrayUtil;
 use Contao\BackendUser;
 use Contao\Controller;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
+use Contao\DC_Table;
 use Contao\Folder;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
@@ -19,8 +20,10 @@ use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\Renaming\ValueObject\RenameClassAndConstFetch;
 use Rector\Transform\Rector\FuncCall\FuncCallToStaticCallRector;
 use Rector\Transform\Rector\StaticCall\StaticCallToFuncCallRector;
+use Rector\Transform\Rector\String_\StringToClassConstantRector;
 use Rector\Transform\ValueObject\FuncCallToStaticCall;
 use Rector\Transform\ValueObject\StaticCallToFuncCall;
+use Rector\Transform\ValueObject\StringToClassConstant;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->ruleWithConfiguration(FuncCallToStaticCallRector::class, [
@@ -71,6 +74,9 @@ return static function (RectorConfig $rectorConfig): void {
 
     // Contao 4.13
     $rectorConfig->rule(InsertTagsServiceRector::class);
+    $rectorConfig->ruleWithConfiguration(StringToClassConstantRector::class, [
+        new StringToClassConstant('Table', DC_Table::class, 'class'),
+    ]);
 
     // Contao 4.12
     //'Contao\FrontendUser::isMemberOf($ids)' => 'Contao\System::getContainer()->get(\'security.helper\')->isGranted(ContaoCorePermissions::MEMBER_IN_GROUPS, $ids)',
