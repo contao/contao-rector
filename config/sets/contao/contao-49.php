@@ -19,16 +19,18 @@ use Contao\Rector\Rector\ConstantToClassConstantRector;
 use Contao\Rector\Rector\ConstantToServiceParameterRector;
 use Contao\Rector\Rector\ControllerMethodToVersionsClassRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToInstanceCallRector;
+use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToStaticCallRector;
 use Contao\Rector\Rector\LoginConstantsToSymfonySecurityRector;
 use Contao\Rector\Rector\ModeConstantToScopeMatcherRector;
-use Contao\Rector\Rector\SystemImageSizesToServiceRector;
 use Contao\Rector\Rector\SystemLogToMonologRector;
 use Contao\Rector\ValueObject\ConstantToClassConstant;
 use Contao\Rector\ValueObject\ConstantToServiceParameter;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToInstanceCall;
+use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToStaticCall;
 use Contao\StringUtil;
+use Contao\System;
 use Contao\Widget;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\ConstFetch\RenameConstantRector;
@@ -108,7 +110,9 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
 
     // Contao 4.1
-    $rectorConfig->rule(SystemImageSizesToServiceRector::class);
+    $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToServiceCallRector::class, [
+        new LegacyFrameworkCallToServiceCall(System::class, 'getImageSizes', 'contao.image.sizes', 'getAllOptions'),
+    ]);
 
     // Contao 4.2
     $rectorConfig->ruleWithConfiguration(ConstantToClassConstantRector::class, [
