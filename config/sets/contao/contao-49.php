@@ -19,6 +19,7 @@ use Contao\Rector\Rector\ConstantToClassConstantRector;
 use Contao\Rector\Rector\ConstantToServiceParameterRector;
 use Contao\Rector\Rector\ControllerMethodToVersionsClassRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToInstanceCallRector;
+use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToStaticCallRector;
 use Contao\Rector\Rector\LoginConstantsToSymfonySecurityRector;
 use Contao\Rector\Rector\ModeConstantToScopeMatcherRector;
@@ -26,11 +27,13 @@ use Contao\Rector\Rector\SystemLogToMonologRector;
 use Contao\Rector\ValueObject\ConstantToClassConstant;
 use Contao\Rector\ValueObject\ConstantToServiceParameter;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToInstanceCall;
+use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToStaticCall;
 use Contao\StringUtil;
+use Contao\System;
 use Contao\Widget;
 use Rector\Config\RectorConfig;
-use Rector\Renaming\Rector\ConstFetch\RenameConstantRector;
+use Rector\Removing\Rector\Class_\RemoveInterfacesRector;
 use Rector\Renaming\Rector\MethodCall\RenameMethodRector;
 use Rector\Renaming\Rector\Name\RenameClassRector;
 use Rector\Renaming\ValueObject\MethodCallRename;
@@ -40,14 +43,15 @@ use Rector\Transform\Rector\MethodCall\MethodCallToStaticCallRector;
 use Rector\Transform\ValueObject\FuncCallToStaticCall;
 use Rector\Transform\ValueObject\MethodCallToFuncCall;
 use Rector\Transform\ValueObject\MethodCallToStaticCall;
+use Terminal42\ServiceAnnotationBundle\ServiceAnnotationInterface;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->ruleWithConfiguration(RenameClassRector::class, [
         // Deprecated in Contao 4.1
-        Contao\CoreBundle\ContaoFrameworkInterface::class => ContaoFramework::class,
+        \Contao\CoreBundle\ContaoFrameworkInterface::class => ContaoFramework::class,
 
         // Deprecated in Contao 4.7
-        Contao\CoreBundle\Framework\ContaoFrameworkInterface::class => ContaoFramework::class,
+        \Contao\CoreBundle\Framework\ContaoFrameworkInterface::class => ContaoFramework::class,
     ]);
 
     $rectorConfig->ruleWithConfiguration(FuncCallToStaticCallRector::class, [
@@ -106,6 +110,11 @@ return static function (RectorConfig $rectorConfig): void {
         new ConstantToServiceParameter('TL_ROOT', 'kernel.project_dir'),
     ]);
 
+    // Contao 4.1
+    $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToServiceCallRector::class, [
+        new LegacyFrameworkCallToServiceCall(System::class, 'getImageSizes', 'contao.image.sizes', 'getAllOptions'),
+    ]);
+
     // Contao 4.2
     $rectorConfig->ruleWithConfiguration(ConstantToClassConstantRector::class, [
         new ConstantToClassConstant('TL_ERROR', ContaoContext::class, 'ERROR'),
@@ -123,6 +132,10 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToInstanceCallRector::class, [
         new LegacyFrameworkCallToInstanceCall(Controller::class, 'getChildRecords', Database::class, 'getChildRecords'),
         new LegacyFrameworkCallToInstanceCall(Controller::class, 'getParentRecords', Database::class, 'getParentRecords'),
+    ]);
+
+    $rectorConfig->ruleWithConfiguration(RemoveInterfacesRector::class, [
+        ServiceAnnotationInterface::class,
     ]);
 
     $rectorConfig->rule(LoginConstantsToSymfonySecurityRector::class);

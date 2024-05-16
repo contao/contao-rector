@@ -8,9 +8,11 @@ use Contao\Controller;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\DC_Table;
 use Contao\Folder;
+use Contao\Rector\Rector\ConstantToServiceCallRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
+use Contao\Rector\ValueObject\ConstantToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
 use Contao\StringUtil;
 use Patchwork\Utf8;
@@ -76,6 +78,10 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->rule(InsertTagsServiceRector::class);
     $rectorConfig->ruleWithConfiguration(StringToClassConstantRector::class, [
         new StringToClassConstant('Table', DC_Table::class, 'class'),
+    ]);
+
+    $rectorConfig->ruleWithConfiguration(ConstantToServiceCallRector::class, [
+        new ConstantToServiceCall('REQUEST_TOKEN', 'contao.csrf.token_manager', 'getDefaultTokenValue'),
     ]);
 
     // Contao 4.12
