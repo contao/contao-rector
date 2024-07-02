@@ -7,7 +7,7 @@ namespace Contao\Rector\Rector;
 use Contao\Rector\ValueObject\ConstantToServiceCall;
 use PhpParser\Node;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
-use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
@@ -27,14 +27,15 @@ final class ConstantToServiceCallRector extends AbstractLegacyFrameworkCallRecto
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition('Fixes deprecated constants to service calls', [
-            new CodeSample(
+            new ConfiguredCodeSample(
                 <<<'CODE_BEFORE'
 $requestToken = REQUEST_TOKEN;
 CODE_BEFORE
                 ,
                 <<<'CODE_AFTER'
 $requestToken = \Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
-CODE_AFTER
+CODE_AFTER,
+                [new ConstantToServiceCall('REQUEST_TOKEN', 'contao.csrf.token_manager', 'getDefaultTokenValue')]
             ),
         ]);
     }
