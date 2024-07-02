@@ -41,10 +41,5 @@
         "test": "vendor/bin/phpunit"
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "config": {
-        "allow-plugins": {
-            "php-http/discovery": true
-        }
-    }
+    "prefer-stable": true
 }
