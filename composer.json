@@ -24,7 +24,8 @@
     },
     "require-dev": {
         "contao/core-bundle": "^4.4 || ^5.0",
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^10.0",
+        "symplify/rule-doc-generator": "^12.2"
     },
     "autoload": {
         "psr-4": {

@@ -8,7 +8,7 @@ use Contao\Rector\ValueObject\ConstantToServiceParameter;
 use PhpParser\Node;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Rector\AbstractRector;
-use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
@@ -28,14 +28,15 @@ final class ConstantToServiceParameterRector extends AbstractRector implements C
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition('Fixes deprecated constants to service parameters', [
-            new CodeSample(
+            new ConfiguredCodeSample(
                 <<<'CODE_BEFORE'
 $projectDir = TL_ROOT;
 CODE_BEFORE
                 ,
                 <<<'CODE_AFTER'
 $projectDir = \Contao\System::getContainer()->getParameter('kernel.project_dir');
-CODE_AFTER
+CODE_AFTER,
+                [new ConstantToServiceParameter('TL_ROOT', 'kernel.project_dir')]
             ),
         ]);
     }
