@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Contao\Rector\Rector;
 
+use Contao\Controller;
+use Contao\Database;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToInstanceCall;
 use PhpParser\Node;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
-use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
@@ -27,7 +29,7 @@ final class LegacyFrameworkCallToInstanceCallRector extends AbstractLegacyFramew
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition('Fixes deprecated legacy framework method to static calls', [
-            new CodeSample(
+            new ConfiguredCodeSample(
                 <<<'CODE_BEFORE'
 $ids = \Contao\Controller::getChildRecords([42], 'tl_page');
 $ids = \Contao\Controller::getParentRecords(42, 'tl_page');
@@ -36,7 +38,8 @@ CODE_BEFORE
                 <<<'CODE_AFTER'
 $ids = \Contao\Database::getInstance()->getChildRecords([42], 'tl_page');
 $ids = \Contao\Database::getInstance()->getParentRecords(42, 'tl_page');
-CODE_AFTER
+CODE_AFTER,
+                [new LegacyFrameworkCallToInstanceCall(Controller::class, 'getChildRecords', Database::class, 'getChildRecords'),]
             ),
         ]);
     }

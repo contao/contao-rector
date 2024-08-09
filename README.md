@@ -37,3 +37,7 @@ dependencies like PHP, Symfony and Doctrine.
 
 As an example, the **ContaoLevelSetList::UP_TO_CONTAO_413** will upgrade your code
 to PHP 7.4 and Symfony 5.4, since Contao 4.13 does not support any lower versions.
+
+## Available rules
+
+* [Explore the current Rector rules](/docs/rules_overview.md)
