@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Contao\Rector\Rector;
 
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\Rector\ValueObject\ConstantToClassConstant;
 use PhpParser\Node;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Rector\AbstractRector;
-use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
@@ -28,14 +29,15 @@ final class ConstantToClassConstantRector extends AbstractRector implements Conf
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition('Fixes deprecated constants to class constants', [
-            new CodeSample(
+            new ConfiguredCodeSample(
                 <<<'CODE_BEFORE'
 $logLevel = TL_ACCESS;
 CODE_BEFORE
                 ,
                 <<<'CODE_AFTER'
 $logLevel = \Contao\CoreBundle\Monolog\ContaoContext::ACCESS;
-CODE_AFTER
+CODE_AFTER,
+                [new ConstantToClassConstant('TL_ERROR', ContaoContext::class, 'ERROR')]
             ),
         ]);
     }

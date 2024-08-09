@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Contao\Rector\Rector;
 
+use Contao\Controller;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
 use PhpParser\Node;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
-use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
@@ -27,14 +28,15 @@ final class LegacyFrameworkCallToServiceCallRector extends AbstractLegacyFramewo
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition('Fixes deprecated legacy framework method to service calls', [
-            new CodeSample(
+            new ConfiguredCodeSample(
                 <<<'CODE_BEFORE'
 $buffer = $this->parseSimpleTokens($buffer, $arrTokens);
 CODE_BEFORE
                 ,
                 <<<'CODE_AFTER'
 $buffer = \Contao\System::getContainer()->get('contao.string.simple_token_parser')->parse($buffer, $arrTokens);
-CODE_AFTER
+CODE_AFTER,
+                [new LegacyFrameworkCallToServiceCall(Controller::class, 'parseSimpleTokens', 'contao.string.simple_token_parser', 'parse')]
             ),
         ]);
     }
