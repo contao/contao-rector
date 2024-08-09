@@ -7,11 +7,11 @@ use Contao\BackendUser;
 use Contao\Controller;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\Folder;
-use Contao\Rector\Rector\ConfigOptionToParameterRector;
+use Contao\Rector\Rector\DataContainerConfigOptionToParameterRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
-use Contao\Rector\ValueObject\ConfigOptionToParameter;
+use Contao\Rector\ValueObject\DataContainerConfigOptionToParameter;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
 use Contao\StringUtil;
 use Patchwork\Utf8;
@@ -70,8 +70,8 @@ return static function (RectorConfig $rectorConfig): void {
 
     // Contao 4.12
     $rectorConfig->rule(SystemLanguagesToServiceRector::class);
-    $rectorConfig->ruleWithConfiguration(ConfigOptionToParameterRector::class, [
-        new ConfigOptionToParameter('validImageTypes', '%contao.image.valid_extensions%'),
+    $rectorConfig->ruleWithConfiguration(DataContainerConfigOptionToParameterRector::class, [
+        new DataContainerConfigOptionToParameter('validImageTypes', '%contao.image.valid_extensions%'),
     ]);
 
     // Contao 4.13
