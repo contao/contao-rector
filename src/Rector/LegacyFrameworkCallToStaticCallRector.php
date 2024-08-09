@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Contao\Rector\Rector;
 
+use Contao\Backend;
+use Contao\Controller;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToStaticCall;
 use PhpParser\Node;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
-use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
@@ -27,7 +29,7 @@ final class LegacyFrameworkCallToStaticCallRector extends AbstractLegacyFramewor
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition('Fixes deprecated legacy framework method to static calls', [
-            new CodeSample(
+            new ConfiguredCodeSample(
                 <<<'CODE_BEFORE'
 $html = \Contao\Controller::getImage($image, $width, $height);
 $html = $this->getImage($image, $width, $height);
@@ -36,7 +38,8 @@ CODE_BEFORE
                 <<<'CODE_AFTER'
 $html = \Contao\Image::get($image, $width, $height);
 $html = \Contao\Image::get($image, $width, $height);
-CODE_AFTER
+CODE_AFTER,
+                [new LegacyFrameworkCallToStaticCall(Controller::class, 'getTheme', Backend::class, 'getTheme')]
             ),
         ]);
     }

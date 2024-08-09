@@ -4,53 +4,59 @@ declare(strict_types=1);
 
 namespace Contao\Rector\Rector;
 
-use Contao\Controller;
-use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
+use Contao\Rector\ValueObject\ConstantToServiceCall;
 use PhpParser\Node;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
-final class LegacyFrameworkCallToServiceCallRector extends AbstractLegacyFrameworkCallRector implements ConfigurableRectorInterface
+final class ConstantToServiceCallRector extends AbstractLegacyFrameworkCallRector implements ConfigurableRectorInterface
 {
     /**
-     * @var array<LegacyFrameworkCallToServiceCall>
+     * @var array<ConstantToServiceCall>
      */
     private array $configuration;
 
     public function configure(array $configuration): void
     {
-        Assert::allIsAOf($configuration, LegacyFrameworkCallToServiceCall::class);
+        Assert::allIsAOf($configuration, ConstantToServiceCall::class);
         $this->configuration = $configuration;
     }
 
     public function getRuleDefinition(): RuleDefinition
     {
-        return new RuleDefinition('Fixes deprecated legacy framework method to service calls', [
+        return new RuleDefinition('Fixes deprecated constants to service calls', [
             new ConfiguredCodeSample(
                 <<<'CODE_BEFORE'
-$buffer = $this->parseSimpleTokens($buffer, $arrTokens);
+$requestToken = REQUEST_TOKEN;
 CODE_BEFORE
                 ,
                 <<<'CODE_AFTER'
-$buffer = \Contao\System::getContainer()->get('contao.string.simple_token_parser')->parse($buffer, $arrTokens);
+$requestToken = \Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 CODE_AFTER,
-                [new LegacyFrameworkCallToServiceCall(Controller::class, 'parseSimpleTokens', 'contao.string.simple_token_parser', 'parse')]
+                [new ConstantToServiceCall('REQUEST_TOKEN', 'contao.csrf.token_manager', 'getDefaultTokenValue')]
             ),
         ]);
     }
 
+    public function getNodeTypes(): array
+    {
+        return [
+            Node\Expr\ConstFetch::class,
+        ];
+    }
+
     public function refactor(Node $node): ?Node
     {
-        assert($node instanceof Node\Expr\StaticCall || $node instanceof Node\Expr\MethodCall);
+        assert($node instanceof Node\Expr\ConstFetch);
 
         foreach ($this->configuration as $config) {
-            if ($this->isParentStaticOrMethodClassCall($node, $config->getClassName(), $config->getMethodName())) {
+            if ($this->isName($node->name, $config->getConstant())) {
                 $container = new Node\Expr\StaticCall(new Node\Name\FullyQualified('Contao\System'), 'getContainer');
                 $service = new Node\Expr\MethodCall($container, 'get', [new Node\Arg(new Node\Scalar\String_($config->getServiceName()))]);
                 $method_name = new Node\Identifier($config->getServiceMethodName());
-                $node = new Node\Expr\MethodCall($service, $method_name, $node->args);
+                $node = new Node\Expr\MethodCall($service, $method_name);
 
                 return $node;
             }
