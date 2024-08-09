@@ -6,11 +6,14 @@ use Contao\ArrayUtil;
 use Contao\BackendUser;
 use Contao\Controller;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
+use Contao\DC_File;
+use Contao\DC_Folder;
 use Contao\DC_Table;
 use Contao\Folder;
 use Contao\Rector\Rector\ConstantToServiceCallRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
+use Contao\Rector\Rector\ReplaceDataContainerRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
 use Contao\Rector\ValueObject\ConstantToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
@@ -76,8 +79,10 @@ return static function (RectorConfig $rectorConfig): void {
 
     // Contao 4.13
     $rectorConfig->rule(InsertTagsServiceRector::class);
-    $rectorConfig->ruleWithConfiguration(StringToClassConstantRector::class, [
+    $rectorConfig->ruleWithConfiguration(ReplaceDataContainerRector::class, [
         new StringToClassConstant('Table', DC_Table::class, 'class'),
+        new StringToClassConstant('File', DC_File::class, 'class'),
+        new StringToClassConstant('Folder', DC_Folder::class, 'class')
     ]);
 
     $rectorConfig->ruleWithConfiguration(ConstantToServiceCallRector::class, [
