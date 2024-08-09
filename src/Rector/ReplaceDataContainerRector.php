@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Contao\Rector\Rector;
 
+use Contao\DC_Table;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Scalar\String_;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Rector\AbstractRector;
 use Rector\Transform\ValueObject\StringToClassConstant;
-use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
@@ -30,7 +31,7 @@ final class ReplaceDataContainerRector extends AbstractRector implements Configu
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition('Replaces data container strings to class constants', [
-            new CodeSample(
+            new ConfiguredCodeSample(
                 <<<'CODE_BEFORE'
 $GLOBALS['TL_DCA']['tl_foo'] = [
     'config' => [
@@ -47,7 +48,8 @@ $GLOBALS['TL_DCA']['tl_foo'] = [
         //...
     ],
 ];
-CODE_AFTER
+CODE_AFTER,
+                [new StringToClassConstant('Table', DC_Table::class, 'class')]
             ),
         ]);
     }

@@ -1,4 +1,4 @@
-# 12 Rules Overview
+# 13 Rules Overview
 
 ## ConstantToClassConstantRector
 
@@ -150,6 +150,26 @@ Fixes deprecated TL_MODE constant to service call
 ```diff
 -$isBackend = TL_MODE === 'BE';
 +$isBackend = \Contao\System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(\Contao\System::getContainer()->get('request_stack')->getCurrentRequest() ?? \Symfony\Component\HttpFoundation\Request::create(''));
+```
+
+<br>
+
+## ReplaceDataContainerRector
+
+Replaces data container strings to class constants
+
+:wrench: **configure it!**
+
+- class: [`Contao\Rector\Rector\ReplaceDataContainerRector`](../src/Rector/ReplaceDataContainerRector.php)
+
+```diff
+ $GLOBALS['TL_DCA']['tl_foo'] = [
+     'config' => [
+-        'dataContainer' => 'Table',
++        'dataContainer' => \Contao\DC_Table::class,
+         //...
+     ],
+ ];
 ```
 
 <br>
