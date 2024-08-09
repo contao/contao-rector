@@ -1,4 +1,4 @@
-# 12 Rules Overview
+# 13 Rules Overview
 
 ## ConstantToClassConstantRector
 
@@ -56,6 +56,28 @@ Fixes deprecated `Controller::createInitialVersion()` and `Controller::createNew
 -\Contao\Controller::createNewVersion('tl_page', 17);
 +(new \Contao\Versions('tl_page', 17))->initialize();
 +(new \Contao\Versions('tl_page', 17))->create();
+```
+
+<br>
+
+## DataContainerConfigOptionToParameterRector
+
+Converts deprecated config options to parameters
+
+:wrench: **configure it!**
+
+- class: [`Contao\Rector\Rector\DataContainerConfigOptionToParameterRector`](../src/Rector/DataContainerConfigOptionToParameterRector.php)
+
+```diff
+ $GLOBALS['TL_DCA']['tl_foo']['fields'] = [
+     'bar' => [
+         'exclude' => true,
+         'inputType' => 'fileTree',
+-        'eval' => ['fieldType'=>'radio', 'filesOnly'=>true, 'isGallery'=>true, 'extensions'=>Contao\Config::get('validImageTypes')],
++        'eval' => ['fieldType'=>'radio', 'filesOnly'=>true, 'isGallery'=>true, 'extensions'=>'%contao.image.valid_extensions%'],
+         'sql' => "binary(16) NULL"
+     ],
+ ];
 ```
 
 <br>
