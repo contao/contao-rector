@@ -1,4 +1,4 @@
-# 12 Rules Overview
+# 13 Rules Overview
 
 ## ConstantToClassConstantRector
 
@@ -41,6 +41,19 @@ Fixes deprecated constants to service parameters
 ```diff
 -$projectDir = TL_ROOT;
 +$projectDir = \Contao\System::getContainer()->getParameter('kernel.project_dir');
+```
+
+<br>
+
+## ContainerSessionToRequestStackSessionRector
+
+Rewrites session access to the request stack session
+
+- class: [`Contao\Rector\Rector\ContainerSessionToRequestStackSessionRector`](../src/Rector/ContainerSessionToRequestStackSessionRector.php)
+
+```diff
+-\Contao\System::getContainer()->get('session');
++\Contao\System::getContainer()->get('request_stack')->getSession();
 ```
 
 <br>
