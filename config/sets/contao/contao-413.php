@@ -15,6 +15,7 @@ use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\CoreBundle\Util\SimpleTokenParser;
 use Contao\Folder;
 use Contao\Rector\Rector\ConstantToServiceCallRector;
+use Contao\Rector\Rector\ContainerSessionToRequestStackSessionRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
@@ -83,6 +84,7 @@ return static function (RectorConfig $rectorConfig): void {
 
     // Contao 4.13
     $rectorConfig->rule(InsertTagsServiceRector::class);
+    $rectorConfig->rule(ContainerSessionToRequestStackSessionRector::class);
 
     $rectorConfig->ruleWithConfiguration(ConstantToServiceCallRector::class, [
         new ConstantToServiceCall('REQUEST_TOKEN', 'contao.csrf.token_manager', 'getDefaultTokenValue'),
