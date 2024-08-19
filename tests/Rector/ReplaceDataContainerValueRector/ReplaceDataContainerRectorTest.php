@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Contao\Rector\Tests\Rector\ReplaceDataContainerRector;
+namespace Contao\Rector\Tests\Rector\ReplaceDataContainerValueRector;
 
 use Iterator;
 use PHPUnit\Framework\Attributes\DataProvider;

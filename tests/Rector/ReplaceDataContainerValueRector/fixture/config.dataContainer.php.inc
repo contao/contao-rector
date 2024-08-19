@@ -9,18 +9,6 @@ class Foo
                 'dataContainer' => 'Table'
             ]
         ];
-
-        $GLOBALS['TL_DCA']['tl_bar'] = [
-            'config' => [
-                'dataContainer' => 'File'
-            ]
-        ];
-
-        $GLOBALS['TL_DCA']['tl_baz'] = [
-            'config' => [
-                'dataContainer' => 'Folder'
-            ]
-        ];
     }
 }
 ?>

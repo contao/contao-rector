@@ -20,10 +20,11 @@ use Contao\Folder;
 use Contao\Rector\Rector\ConstantToServiceCallRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
-use Contao\Rector\Rector\ReplaceDataContainerRector;
+use Contao\Rector\Rector\ReplaceDataContainerValueRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
 use Contao\Rector\ValueObject\ConstantToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
+use Contao\Rector\ValueObject\ReplaceDataContainerValue;
 use Contao\StringUtil;
 use Patchwork\Utf8;
 use Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector;
@@ -89,10 +90,10 @@ return static function (RectorConfig $rectorConfig): void {
     // Contao 4.13
     $rectorConfig->rule(InsertTagsServiceRector::class);
 
-    $rectorConfig->ruleWithConfiguration(ReplaceDataContainerRector::class, [
-        new StringToClassConstant('Table', DC_Table::class, 'class'),
-        new StringToClassConstant('File', DC_File::class, 'class'),
-        new StringToClassConstant('Folder', DC_Folder::class, 'class')
+    $rectorConfig->ruleWithConfiguration(ReplaceDataContainerValueRector::class, [
+        new ReplaceDataContainerValue('config.dataContainer','Table', DC_Table::class),
+        new ReplaceDataContainerValue('config.dataContainer', 'File', DC_File::class),
+        new ReplaceDataContainerValue('config.dataContainer', 'Folder', DC_Folder::class)
     ]);
 
     $rectorConfig->ruleWithConfiguration(ConstantToServiceCallRector::class, [
