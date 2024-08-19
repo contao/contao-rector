@@ -21,6 +21,7 @@ use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
 use Contao\Rector\ValueObject\ConstantToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
+use Contao\RequestToken;
 use Contao\StringUtil;
 use Patchwork\Utf8;
 use Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector;
@@ -88,6 +89,10 @@ return static function (RectorConfig $rectorConfig): void {
 
     $rectorConfig->ruleWithConfiguration(ConstantToServiceCallRector::class, [
         new ConstantToServiceCall('REQUEST_TOKEN', 'contao.csrf.token_manager', 'getDefaultTokenValue'),
+    ]);
+
+    $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToServiceCallRector::class, [
+        new LegacyFrameworkCallToServiceCall(RequestToken::class, 'get', 'contao.csrf.token_manager', 'getDefaultTokenValue'),
     ]);
 
     // Contao 4.13

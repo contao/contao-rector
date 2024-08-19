@@ -42,7 +42,9 @@ abstract class AbstractLegacyFrameworkCallRector extends AbstractRector
                     return false;
                 }
 
-                return is_a($this->getName($node->class), $oldClassName, true);
+                $className = $this->getName($node->class);
+
+                return $className === $oldClassName || is_a($className, $oldClassName, true);
             }
 
             $classReflection = $this->reflectionResolver->resolveClassReflection($node);
