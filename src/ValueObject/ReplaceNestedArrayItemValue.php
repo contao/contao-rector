@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Contao\Rector\ValueObject;
 
-class ReplaceDataContainerValue
+class ReplaceNestedArrayItemValue
 {
     public function __construct(
         private readonly string $targetPath,

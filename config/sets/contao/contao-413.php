@@ -20,11 +20,11 @@ use Contao\Folder;
 use Contao\Rector\Rector\ConstantToServiceCallRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
-use Contao\Rector\Rector\ReplaceDataContainerValueRector;
+use Contao\Rector\Rector\ReplaceNestedArrayItemRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
 use Contao\Rector\ValueObject\ConstantToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
-use Contao\Rector\ValueObject\ReplaceDataContainerValue;
+use Contao\Rector\ValueObject\ReplaceNestedArrayItemValue;
 use Contao\StringUtil;
 use Patchwork\Utf8;
 use Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector;
@@ -37,7 +37,6 @@ use Rector\Transform\Rector\FuncCall\FuncCallToStaticCallRector;
 use Rector\Transform\Rector\StaticCall\StaticCallToFuncCallRector;
 use Rector\Transform\ValueObject\FuncCallToStaticCall;
 use Rector\Transform\ValueObject\StaticCallToFuncCall;
-use Rector\Transform\ValueObject\StringToClassConstant;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 return static function (RectorConfig $rectorConfig): void {
@@ -90,11 +89,11 @@ return static function (RectorConfig $rectorConfig): void {
     // Contao 4.13
     $rectorConfig->rule(InsertTagsServiceRector::class);
 
-    $rectorConfig->ruleWithConfiguration(ReplaceDataContainerValueRector::class, [
-        new ReplaceDataContainerValue('config.dataContainer','Table', DC_Table::class),
-        new ReplaceDataContainerValue('config.dataContainer', 'File', DC_File::class),
-        new ReplaceDataContainerValue('config.dataContainer', 'Folder', DC_Folder::class)
-    ]);
+    /*$rectorConfig->ruleWithConfiguration(ReplaceNestedArrayItemRector::class, [
+        new ReplaceNestedArrayItemValue('TL_DCA.tl_foo.config.dataContainer', 'Table', DC_Table::class),
+        new ReplaceNestedArrayItemValue('TL_DCA.tl_bar.config.dataContainer', 'File', DC_File::class),
+        new ReplaceNestedArrayItemValue('TL_DCA.tl_baz.config.dataContainer', 'Folder', DC_Folder::class)
+    ]);*/
 
     $rectorConfig->ruleWithConfiguration(ConstantToServiceCallRector::class, [
         new ConstantToServiceCall('REQUEST_TOKEN', 'contao.csrf.token_manager', 'getDefaultTokenValue'),

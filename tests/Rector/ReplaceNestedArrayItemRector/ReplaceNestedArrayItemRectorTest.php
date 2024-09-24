@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Contao\Rector\Tests\Rector\ReplaceDataContainerValueRector;
+namespace Contao\Rector\Tests\Rector\ReplaceNestedArrayItemRector;
 
 use Iterator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Rector\Testing\PHPUnit\AbstractRectorTestCase;
 
-final class ReplaceDataContainerRectorTest extends AbstractRectorTestCase
+final class ReplaceNestedArrayItemRectorTest extends AbstractRectorTestCase
 {
     #[DataProvider('provideData')]
     public function test(string $filePath): void
