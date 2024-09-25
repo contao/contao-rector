@@ -79,10 +79,9 @@ CODE_AFTER
                 $targetPath = explode('.', $configuration->getTargetPath());
 
                 if (
-                    $targetPath === [...$parentKeyPath, ...$childrenKeyPath]
+                    $this->matchPaths($targetPath, [...$parentKeyPath, ...$childrenKeyPath])
                 ) {
                     $this->replaceTargetNodeValue($node, $childrenKeyPath, $configuration);
-                    return $node;
                 }
             }
         }
@@ -90,12 +89,32 @@ CODE_AFTER
         return null;
     }
 
+    private function matchPaths(array $targetPath, array $currentPath): bool
+    {
+        if (count($targetPath) !== count($currentPath))
+        {
+            return false;
+        }
+
+        foreach ($targetPath as $key => $value)
+        {
+            if ($value === '*' || $value === $currentPath[$key] ?? null)
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
     private function matchesReplacementValue($item, $old): bool
     {
         return
             gettype($item?->value) === gettype($old)
             && $item?->value === $old
-            ;
+        ;
     }
 
     private function replaceTargetNodeValue(Assign|ArrayItem $node, array $childrenKeyPath, ReplaceNestedArrayItemValue $configuration): void
