@@ -136,7 +136,7 @@ CODE_AFTER
 
         if ($this->matchesReplacementValue($item, $oldValue))
         {
-            $item->value = $configuration->getNewValue();
+            $item = $configuration->getNewValue();
         }
         elseif ($item instanceof Array_)
         {
