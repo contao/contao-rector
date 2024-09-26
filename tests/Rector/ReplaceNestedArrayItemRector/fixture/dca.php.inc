@@ -59,7 +59,7 @@ class Foo
                 'screenshot' => [
                     'exclude' => true,
                     'inputType' => 'fileTree',
-                    'eval' => ['fieldType'=>'radio', 'filesOnly'=>true, 'isGallery'=>true, 'extensions'=> Config::get('validImageTypes')],
+                    'eval' => ['fieldType'=>'radio', 'filesOnly'=>true, 'isGallery'=>true, 'extensions'=> '%contao.image.valid_extensions%'],
                     'sql' => "binary(16) NULL"
                 ],
             ]
