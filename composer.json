@@ -20,7 +20,7 @@
         "php": "^8.1",
         "rector/rector": "^0.19 || ^1.0",
         "phpstan/phpstan": "^1.0",
-        "webmozart/assert": "^1.2"
+        "webmozart/assert": "^1.7"
     },
     "require-dev": {
         "contao/core-bundle": "^4.4 || ^5.0",

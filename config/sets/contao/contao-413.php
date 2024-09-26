@@ -13,18 +13,15 @@ use Contao\Controller;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\CoreBundle\Util\SimpleTokenParser;
-use Contao\DC_File;
-use Contao\DC_Folder;
-use Contao\DC_Table;
 use Contao\Folder;
 use Contao\Rector\Rector\ConstantToServiceCallRector;
+use Contao\Rector\Rector\ContainerSessionToRequestStackSessionRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
-use Contao\Rector\Rector\ReplaceNestedArrayItemRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
 use Contao\Rector\ValueObject\ConstantToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
-use Contao\Rector\ValueObject\ReplaceNestedArrayItemValue;
+use Contao\RequestToken;
 use Contao\StringUtil;
 use Patchwork\Utf8;
 use Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector;
@@ -88,6 +85,7 @@ return static function (RectorConfig $rectorConfig): void {
 
     // Contao 4.13
     $rectorConfig->rule(InsertTagsServiceRector::class);
+    $rectorConfig->rule(ContainerSessionToRequestStackSessionRector::class);
 
     /*$rectorConfig->ruleWithConfiguration(ReplaceNestedArrayItemRector::class, [
         new ReplaceNestedArrayItemValue('TL_DCA.tl_foo.config.dataContainer', 'Table', DC_Table::class),
@@ -97,6 +95,10 @@ return static function (RectorConfig $rectorConfig): void {
 
     $rectorConfig->ruleWithConfiguration(ConstantToServiceCallRector::class, [
         new ConstantToServiceCall('REQUEST_TOKEN', 'contao.csrf.token_manager', 'getDefaultTokenValue'),
+    ]);
+
+    $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToServiceCallRector::class, [
+        new LegacyFrameworkCallToServiceCall(RequestToken::class, 'get', 'contao.csrf.token_manager', 'getDefaultTokenValue'),
     ]);
 
     // Contao 4.13

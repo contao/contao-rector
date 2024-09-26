@@ -45,6 +45,19 @@ Fixes deprecated constants to service parameters
 
 <br>
 
+## ContainerSessionToRequestStackSessionRector
+
+Rewrites session access to the request stack session
+
+- class: [`Contao\Rector\Rector\ContainerSessionToRequestStackSessionRector`](../src/Rector/ContainerSessionToRequestStackSessionRector.php)
+
+```diff
+-\Contao\System::getContainer()->get('session');
++\Contao\System::getContainer()->get('request_stack')->getSession();
+```
+
+<br>
+
 ## ControllerMethodToVersionsClassRector
 
 Fixes deprecated `Controller::createInitialVersion()` and `Controller::createNewVersion()` to Versions class calls
