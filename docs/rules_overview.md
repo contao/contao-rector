@@ -1,4 +1,4 @@
-# 13 Rules Overview
+# 14 Rules Overview
 
 ## ConstantToClassConstantRector
 
@@ -167,21 +167,30 @@ Fixes deprecated TL_MODE constant to service call
 
 <br>
 
-## ReplaceDataContainerRector
+## ReplaceNestedArrayItemRector
 
-Replaces data container strings to class constants
+Replaces array item values based on a configuration with wild card support and strict types
 
 :wrench: **configure it!**
 
-- class: [`Contao\Rector\Rector\ReplaceDataContainerRector`](../src/Rector/ReplaceDataContainerRector.php)
+- class: [`Contao\Rector\Rector\ReplaceNestedArrayItemRector`](../src/Rector/ReplaceNestedArrayItemRector.php)
 
 ```diff
- $GLOBALS['TL_DCA']['tl_foo'] = [
-     'config' => [
--        'dataContainer' => 'Table',
-+        'dataContainer' => \Contao\DC_Table::class,
-         //...
-     ],
+-$GLOBALS['TL_DCA']['tl_foo']['config']['dataContainer'] = 'Table';
+-$GLOBALS['TL_DCA']['tl_foo']['foo']['bar']['baz'] = 'TYPOlight';
++$GLOBALS['TL_DCA']['tl_foo']['config']['dataContainer'] = \Contao\DC_Table::class;
++$GLOBALS['TL_DCA']['tl_foo']['foo']['bar']['baz'] = 'Contao';
+ $GLOBALS['TL_DCA']['tl_complex'] = [
+     'config' => [],
+     'fields' => [
+         'screenshot' => [
+             'exclude' => true,
+             'inputType' => 'fileTree',
+-            'eval' => ['fieldType'=>'radio', 'filesOnly'=>true, 'isGallery'=>true, 'extensions'=> Config::get('validImageTypes')],
++            'eval' => ['fieldType'=>'radio', 'filesOnly'=>true, 'isGallery'=>true, 'extensions'=> '%contao.image.valid_extensions%'],
+             'sql' => "binary(16) NULL"
+         ],
+     ]
  ];
 ```
 

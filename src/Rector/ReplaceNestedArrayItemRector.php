@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Contao\Rector\Rector;
 
+use Contao\Config;
 use Contao\Rector\ValueObject\ReplaceNestedArrayItemValue;
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
@@ -38,7 +42,7 @@ final class ReplaceNestedArrayItemRector extends AbstractRector implements Confi
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition(
-            'Replaces array item values based on a configuration',
+            'Replaces array item values based on a configuration with wild card support and strict types',
             [
                 new ConfiguredCodeSample(
                     <<<'CODE_BEFORE'
