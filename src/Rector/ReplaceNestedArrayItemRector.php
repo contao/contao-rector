@@ -19,6 +19,8 @@ use Webmozart\Assert\Assert;
 
 final class ReplaceNestedArrayItemRector extends AbstractRector implements ConfigurableRectorInterface
 {
+    const PATH_MATCHES = '__hit__';
+
     /**
      * @var array<ReplaceNestedArrayItemValue>
      */
@@ -38,17 +40,17 @@ final class ReplaceNestedArrayItemRector extends AbstractRector implements Confi
                 new ConfiguredCodeSample(
                     <<<'CODE_BEFORE'
 $GLOBALS['TL_DCA']['tl_foo']['config']['dataContainer'] = 'Table';
-$GLOBALS['TL_DCA']['tl_foo']['foo']['bar']['baz'] = 'Table';
+$GLOBALS['TL_DCA']['tl_foo']['foo']['bar']['baz'] = 'TYPOlight';
 CODE_BEFORE
                     ,
                     <<<'CODE_AFTER'
 $GLOBALS['TL_DCA']['tl_foo']['config']['dataContainer'] = \Contao\DC_Table::class;
-$GLOBALS['TL_DCA']['tl_foo']['foo']['bar']['baz'] = \Contao\DC_Table::class;
+$GLOBALS['TL_DCA']['tl_foo']['foo']['bar']['baz'] = 'Contao';
 CODE_AFTER
                     ,
                     [
-                        new ReplaceNestedArrayItemValue('config.dataContainer', 'Table', '\Contao\DC_Table::class'),
-                        new ReplaceNestedArrayItemValue('foo.bar.baz', 'Table', '\Contao\DC_Table::class'),
+                        new ReplaceNestedArrayItemValue('config.dataContainer', 'Table', \Contao\DC_Table::class),
+                        new ReplaceNestedArrayItemValue('foo.bar.baz', 'TYPOlight', 'Contao'),
                     ]
                 ),
             ]
@@ -71,16 +73,18 @@ CODE_AFTER
 
         if ($node->var instanceof ArrayDimFetch)
         {
-            $parentKeyPath = $this->findParentKeys($node->var);
-            $childrenKeyPath = $this->findChildrenKeys($node->expr);
+            $arrParentKeyPath = $this->findParentKeys($node->var);
+            $arrChildTraversalPath = $this->createChildrenTraversePath($node->expr);
 
             foreach ($this->configuration as $configuration)
             {
                 $targetPath = explode('.', $configuration->getTargetPath());
 
-                if (
-                    $this->matchPaths($targetPath, [...$parentKeyPath, ...$childrenKeyPath])
-                ) {
+                $childrenKeyPath = $this->matchPaths($targetPath, $arrParentKeyPath, $arrChildTraversalPath);
+
+                // $childrenKeyPath is false if it never matched a path, otherwise it's always an array
+                if (false !== $childrenKeyPath)
+                {
                     $this->replaceTargetNodeValue($node, $childrenKeyPath, $configuration);
                 }
             }
@@ -89,24 +93,67 @@ CODE_AFTER
         return null;
     }
 
-    private function matchPaths(array $targetPath, array $currentPath): bool
+    /**
+     * This function matches the paths based on the left assignment aka $parentPath and the right assignment which may
+     * be a multidimensional array ($childTraversal).
+     *
+     * On success, will return the path to traverse down for manipulation
+     * On failure, will return false
+     */
+    private function matchPaths(array $targetPath, array &$parentPath, array|string $childTraversalPath): array|false
     {
-        if (count($targetPath) !== count($currentPath))
+        $childrenKeyPath = [];
+
+        // Early return cause the value already matches the right hand assignment
+        if (self::PATH_MATCHES === $childTraversalPath)
         {
-            return false;
+            return $childrenKeyPath;
         }
 
         foreach ($targetPath as $key => $value)
         {
-            if ($value === '*' || $value === $currentPath[$key] ?? null)
-            {
-                continue;
+            // Remove parent paths and traverse down
+            if (
+                [] !== $parentPath
+                && ($value === '*' || $value === $parentPath[$key] ?? null)
+            ) {
+                unset($parentPath[$key]);
+                unset($targetPath[$key]);
             }
 
-            return false;
+            // Wildcard support for array key traversing
+            elseif (
+                $value === '*'
+                && [] !== $childTraversalPath
+            ) {
+                $waypoint = array_keys($childTraversalPath)[0];
+
+                // Assuming it's a wildcard, we actually want to store the first key we find
+                $childTraversalPath = $childTraversalPath[$waypoint];
+                $childrenKeyPath[] = $waypoint;
+            }
+
+            elseif (isset($childTraversalPath[$value]))
+            {
+                $childrenKeyPath[] = $value;
+                $childTraversalPath = $childTraversalPath[$value] ?? [];
+
+                // Early return if the target did match
+                if (self::PATH_MATCHES === $childTraversalPath)
+                {
+                    return $childrenKeyPath;
+                }
+            }
+
+            // This only ever happens if we never had a childTraversalPath in the first place such as
+            // $GLOBALS['TL_DCA']['tl_baz']['config']['dataContainer'] = 'Folder';
+            elseif ([] === $childTraversalPath)
+            {
+                return $childrenKeyPath;
+            }
         }
 
-        return true;
+        return false;
     }
 
     private function matchesReplacementValue($item, $old): bool
@@ -117,6 +164,14 @@ CODE_AFTER
         ;
     }
 
+    /**
+     * Checks for the found target node and replaces the node if it matches.
+     * This runs recursively till it either replaces the whole node whilst traversing down the nodes using the
+     * childrenKeyPath from the matchPaths function until it confirms the type of the oldValue replacing the new one.
+     *
+     * Hint: The new values within ReplaceNestedArrayItemValue already have the nodes prepared so new ones have to be
+     * added there.
+     */
     private function replaceTargetNodeValue(Assign|ArrayItem $node, array $childrenKeyPath, ReplaceNestedArrayItemValue $configuration): void
     {
         if (isset($node->expr))
@@ -133,27 +188,42 @@ CODE_AFTER
         }
 
         $oldValue = $configuration->getOldValue();
+        $newValue = $configuration->getNewValue();
 
         if ($this->matchesReplacementValue($item, $oldValue))
         {
-            $item = $configuration->getNewValue();
+            $item = $newValue;
         }
         elseif ($item instanceof Array_)
         {
-            foreach ($item->items as $sub)
+            foreach ($item->items as &$sub)
             {
                 if (
                     $sub instanceof ArrayItem
                     && $sub->key instanceof String_
-                    && $sub->key->value === array_values($childrenKeyPath)[0] ?? null
                 ) {
-                    array_shift($childrenKeyPath);
-                    $this->replaceTargetNodeValue($sub, $childrenKeyPath, $configuration);
+                    if ($sub->key->value === array_values($childrenKeyPath)[0] ?? null)
+                    {
+                        array_shift($childrenKeyPath);
+                        $this->replaceTargetNodeValue($sub, $childrenKeyPath, $configuration);
+                    }
+
+                    elseif (
+                        [] === $childrenKeyPath
+                        && $this->matchesReplacementValue($sub, $oldValue)
+                    ) {
+                        $sub = $newValue;
+                        return;
+                    }
                 }
             }
         }
+
     }
 
+    /**
+     * Returns a simple array with the parent keys in the descending order
+     */
     private function findParentKeys(ArrayDimFetch $arrayDimFetch): array
     {
         $keys = [];
@@ -171,7 +241,12 @@ CODE_AFTER
         return array_reverse($keys);
     }
 
-    private function findChildrenKeys(Node $expr): array
+    /**
+     * Converts the child array items into a multidimensional array so we can validate the traversal path.
+     * The array keys are the valid array keys and the values are the children.
+     * The final child is always the constant PATH_MATCHES :)
+     */
+    private function createChildrenTraversePath(Node $expr, array &$keys = []): array
     {
         if (!$expr instanceof Array_)
         {
@@ -187,14 +262,23 @@ CODE_AFTER
                 continue;
             }
 
-            if ($item->key instanceof String_)
+            $key = $item->key->value ?? $item->value->value ?? null;
+
+            if (null === $key)
             {
-                $keys[] = $item->key->value;
+                continue;
             }
 
-            if ($item->value instanceof Array_)
+            if (
+                $item->value instanceof Array_
+                || $item->value instanceof ArrayItem
+            ) {
+                $keys[$key] = [];
+                $this->createChildrenTraversePath($item->value, $keys[$key]);
+            }
+            else
             {
-                $keys = array_merge($keys, $this->findChildrenKeys($item->value));
+                $keys[$key] = self::PATH_MATCHES;
             }
         }
 
