@@ -167,6 +167,26 @@ Fixes deprecated TL_MODE constant to service call
 
 <br>
 
+## ReplaceDataContainerRector
+
+Replaces data container strings to class constants
+
+:wrench: **configure it!**
+
+- class: [`Contao\Rector\Rector\ReplaceDataContainerRector`](../src/Rector/ReplaceDataContainerRector.php)
+
+```diff
+ $GLOBALS['TL_DCA']['tl_foo'] = [
+     'config' => [
+-        'dataContainer' => 'Table',
++        'dataContainer' => \Contao\DC_Table::class,
+         //...
+     ],
+ ];
+```
+
+<br>
+
 ## SystemLanguagesToServiceRector
 
 Fixes deprecated `\Contao\System::getLanguages()` method to service call
