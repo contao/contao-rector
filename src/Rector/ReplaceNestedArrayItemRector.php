@@ -6,11 +6,14 @@ namespace Contao\Rector\Rector;
 
 use Contao\Rector\ValueObject\ReplaceNestedArrayItemValue;
 use PhpParser\Node;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Scalar\String_;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitorAbstract;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Rector\AbstractRector;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
@@ -19,7 +22,7 @@ use Webmozart\Assert\Assert;
 
 final class ReplaceNestedArrayItemRector extends AbstractRector implements ConfigurableRectorInterface
 {
-    const PATH_MATCHES = '__hit__';
+    const PATH_END = '__end__';
 
     /**
      * @var array<ReplaceNestedArrayItemValue>
@@ -74,18 +77,21 @@ CODE_AFTER
         if ($node->var instanceof ArrayDimFetch)
         {
             $arrParentKeyPath = $this->findParentKeys($node->var);
-            $arrChildTraversalPath = $this->createChildrenTraversePath($node->expr);
+            $childTraversal = $this->createChildTraversalPath($node->expr);
 
             foreach ($this->configuration as $configuration)
             {
                 $targetPath = explode('.', $configuration->getTargetPath());
 
-                $childrenKeyPath = $this->matchPaths($targetPath, $arrParentKeyPath, $arrChildTraversalPath);
+                $childrenKeyPath = $this->matchPaths($targetPath, $arrParentKeyPath, $childTraversal);
 
                 // $childrenKeyPath is false if it never matched a path, otherwise it's always an array
                 if (false !== $childrenKeyPath)
                 {
-                    $this->replaceTargetNodeValue($node, $childrenKeyPath, $configuration);
+                    $oldValue = $configuration->getOldValue();
+                    $newValue = $configuration->getNewValue();
+
+                    $this->replaceTargetNodeValue($node, $childrenKeyPath, $configuration, $oldValue, $newValue);
                 }
             }
         }
@@ -100,31 +106,32 @@ CODE_AFTER
      * On success, will return the path to traverse down for manipulation
      * On failure, will return false
      */
-    private function matchPaths(array $targetPath, array &$parentPath, array|string $childTraversalPath): array|false
+    private function matchPaths(array $targetPath, array $parentPath, array|string $childTraversalPath): array|false
     {
         $childrenKeyPath = [];
 
-        // Early return cause the value already matches the right hand assignment
-        if (self::PATH_MATCHES === $childTraversalPath)
+        // Early return because we are already at the end of the path
+        if (self::PATH_END === $childTraversalPath)
         {
             return $childrenKeyPath;
         }
 
-        foreach ($targetPath as $key => $value)
+        foreach ($targetPath as $value)
         {
             // Remove parent paths and traverse down
             if (
                 [] !== $parentPath
-                && ($value === '*' || $value === $parentPath[$key] ?? null)
+                && ($value === '*' || $value === array_values($parentPath)[0] ?? null)
             ) {
-                unset($parentPath[$key]);
-                unset($targetPath[$key]);
+                array_shift($parentPath);
+                array_shift($targetPath);
             }
 
             // Wildcard support for array key traversing
             elseif (
                 $value === '*'
                 && [] !== $childTraversalPath
+                && is_array($childTraversalPath)
             ) {
                 $waypoint = array_keys($childTraversalPath)[0];
 
@@ -136,10 +143,10 @@ CODE_AFTER
             elseif (isset($childTraversalPath[$value]))
             {
                 $childrenKeyPath[] = $value;
-                $childTraversalPath = $childTraversalPath[$value] ?? [];
+                $childTraversalPath = $childTraversalPath[$value];
 
                 // Early return if the target did match
-                if (self::PATH_MATCHES === $childTraversalPath)
+                if (self::PATH_END === $childTraversalPath)
                 {
                     return $childrenKeyPath;
                 }
@@ -156,11 +163,41 @@ CODE_AFTER
         return false;
     }
 
-    private function matchesReplacementValue($item, $old): bool
+    private function normalizeNode(Node &$node): void
     {
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(
+            new class extends NodeVisitorAbstract
+            {
+                public function enterNode(Node $node): void
+                {
+                    $node->setAttributes([]);
+                }
+            }
+        );
+
+        $node = $traverser->traverse([$node])[0];
+    }
+
+    private function matchesReplacementValue(mixed $item, mixed $old): bool
+    {
+        $current = $item->value ?? $item;
+
+        $currentType = gettype($current);
+        $oldType = gettype($old);
+
+        // If we are looking for a node, we want to normalize it because we can't mock the proper attributes...
+        if ($current instanceof Node && $old instanceof Node)
+        {
+            $this->normalizeNode($current);
+            $this->normalizeNode($old);
+
+            $currentType = $current->getType();
+            $oldType = $old->getType();
+        }
         return
-            gettype($item?->value) === gettype($old)
-            && $item?->value === $old
+            $currentType === $oldType
+            && $current == $old
         ;
     }
 
@@ -172,7 +209,7 @@ CODE_AFTER
      * Hint: The new values within ReplaceNestedArrayItemValue already have the nodes prepared so new ones have to be
      * added there.
      */
-    private function replaceTargetNodeValue(Assign|ArrayItem $node, array $childrenKeyPath, ReplaceNestedArrayItemValue $configuration): void
+    private function replaceTargetNodeValue(Expr $node, array $childrenKeyPath, ReplaceNestedArrayItemValue $configuration, mixed $oldValue, mixed $newValue): void
     {
         if (isset($node->expr))
         {
@@ -187,14 +224,7 @@ CODE_AFTER
             return;
         }
 
-        $oldValue = $configuration->getOldValue();
-        $newValue = $configuration->getNewValue();
-
-        if ($this->matchesReplacementValue($item, $oldValue))
-        {
-            $item = $newValue;
-        }
-        elseif ($item instanceof Array_)
+        if ($item instanceof Array_)
         {
             foreach ($item->items as &$sub)
             {
@@ -205,7 +235,7 @@ CODE_AFTER
                     if ($sub->key->value === array_values($childrenKeyPath)[0] ?? null)
                     {
                         array_shift($childrenKeyPath);
-                        $this->replaceTargetNodeValue($sub, $childrenKeyPath, $configuration);
+                        $this->replaceTargetNodeValue($sub, $childrenKeyPath, $configuration, $oldValue, $newValue);
                     }
 
                     elseif (
@@ -218,7 +248,10 @@ CODE_AFTER
                 }
             }
         }
-
+        elseif ($this->matchesReplacementValue($item, $oldValue))
+        {
+            $item = $newValue;
+        }
     }
 
     /**
@@ -244,13 +277,14 @@ CODE_AFTER
     /**
      * Converts the child array items into a multidimensional array so we can validate the traversal path.
      * The array keys are the valid array keys and the values are the children.
-     * The final child is always the constant PATH_MATCHES :)
+     * The final child is always the constant PATH_END :)
      */
-    private function createChildrenTraversePath(Node $expr, array &$keys = []): array
+    private function createChildTraversalPath(Node $expr, array &$keys = []): array|string
     {
+        // We are already at the end
         if (!$expr instanceof Array_)
         {
-            return [];
+            return self::PATH_END;
         }
 
         $keys = [];
@@ -274,11 +308,11 @@ CODE_AFTER
                 || $item->value instanceof ArrayItem
             ) {
                 $keys[$key] = [];
-                $this->createChildrenTraversePath($item->value, $keys[$key]);
+                $this->createChildTraversalPath($item->value, $keys[$key]);
             }
             else
             {
-                $keys[$key] = self::PATH_MATCHES;
+                $keys[$key] = self::PATH_END;
             }
         }
 
