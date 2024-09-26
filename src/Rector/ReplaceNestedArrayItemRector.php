@@ -38,22 +38,50 @@ final class ReplaceNestedArrayItemRector extends AbstractRector implements Confi
     public function getRuleDefinition(): RuleDefinition
     {
         return new RuleDefinition(
-            'Replaces array values based on configuration',
+            'Replaces array item values based on a configuration',
             [
                 new ConfiguredCodeSample(
                     <<<'CODE_BEFORE'
 $GLOBALS['TL_DCA']['tl_foo']['config']['dataContainer'] = 'Table';
 $GLOBALS['TL_DCA']['tl_foo']['foo']['bar']['baz'] = 'TYPOlight';
+$GLOBALS['TL_DCA']['tl_complex'] = [
+    'config' => [],
+    'fields' => [
+        'screenshot' => [
+            'exclude' => true,
+            'inputType' => 'fileTree',
+            'eval' => ['fieldType'=>'radio', 'filesOnly'=>true, 'isGallery'=>true, 'extensions'=> Config::get('validImageTypes')],
+            'sql' => "binary(16) NULL"
+        ],
+    ]
+];
 CODE_BEFORE
                     ,
                     <<<'CODE_AFTER'
 $GLOBALS['TL_DCA']['tl_foo']['config']['dataContainer'] = \Contao\DC_Table::class;
 $GLOBALS['TL_DCA']['tl_foo']['foo']['bar']['baz'] = 'Contao';
+$GLOBALS['TL_DCA']['tl_complex'] = [
+    'config' => [],
+    'fields' => [
+        'screenshot' => [
+            'exclude' => true,
+            'inputType' => 'fileTree',
+            'eval' => ['fieldType'=>'radio', 'filesOnly'=>true, 'isGallery'=>true, 'extensions'=> '%contao.image.valid_extensions%'],
+            'sql' => "binary(16) NULL"
+        ],
+    ]
+];
+
 CODE_AFTER
                     ,
                     [
-                        new ReplaceNestedArrayItemValue('config.dataContainer', 'Table', \Contao\DC_Table::class),
-                        new ReplaceNestedArrayItemValue('foo.bar.baz', 'TYPOlight', 'Contao'),
+                        new ReplaceNestedArrayItemValue('TL_DCA.*.config.dataContainer', 'Table', \Contao\DC_Table::class),
+                        new ReplaceNestedArrayItemValue('TL_DCA.*.foo.*.baz', 'TYPOlight', 'Contao'),
+                        new ReplaceNestedArrayItemValue(
+                            'TL_DCA.*.fields.*.eval.extensions',
+                            new StaticCall(new FullyQualified(Config::class), 'get', [new Arg(new String_('validImageTypes'))]),
+                            '%contao.image.valid_extensions%'
+                        ),
                     ]
                 ),
             ]
@@ -205,9 +233,6 @@ CODE_AFTER
      * Checks for the found target node and replaces the node if it matches.
      * This runs recursively till it either replaces the whole node whilst traversing down the nodes using the
      * childrenKeyPath from the matchPaths function until it confirms the type of the oldValue replacing the new one.
-     *
-     * Hint: The new values within ReplaceNestedArrayItemValue already have the nodes prepared so new ones have to be
-     * added there.
      */
     private function replaceTargetNodeValue(Expr $node, array $childrenKeyPath, ReplaceNestedArrayItemValue $configuration, mixed $oldValue, mixed $newValue): void
     {
