@@ -9,12 +9,6 @@ class Foo
                 'dataContainer' => 'Table'
             ]
         ];
-
-        $GLOBALS['TL_DCA']['tl_bar']['config'] = [
-            'dataContainer' => 'File'
-        ];
-
-        $GLOBALS['TL_DCA']['tl_baz']['config']['dataContainer'] = 'Folder';
     }
 }
 ?>
@@ -30,12 +24,6 @@ class Foo
                 'dataContainer' => \Contao\DC_Table::class
             ]
         ];
-
-        $GLOBALS['TL_DCA']['tl_bar']['config'] = [
-            'dataContainer' => \Contao\DC_File::class
-        ];
-
-        $GLOBALS['TL_DCA']['tl_baz']['config']['dataContainer'] = \Contao\DC_Folder::class;
     }
 }
 ?>

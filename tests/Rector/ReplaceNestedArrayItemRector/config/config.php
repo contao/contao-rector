@@ -12,7 +12,7 @@ use Rector\Config\RectorConfig;
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->ruleWithConfiguration(ReplaceNestedArrayItemRector::class, [
         new ReplaceNestedArrayItemValue('TL_DCA.*.*.dataContainer','Table', DC_Table::class),
-        new ReplaceNestedArrayItemValue('TL_DCA.*.config.dataContainer','File', DC_File::class),
-        new ReplaceNestedArrayItemValue('TL_DCA.tl_baz.config.dataContainer','Folder', DC_Folder::class)
+        new ReplaceNestedArrayItemValue('TL_DCA.*.config.dataContainer','Folder', DC_Folder::class),
+        new ReplaceNestedArrayItemValue('TL_DCA.tl_baz.config.dataContainer','File', DC_File::class),
     ]);
 };
