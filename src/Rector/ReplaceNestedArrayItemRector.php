@@ -232,8 +232,10 @@ CODE_AFTER
                     $sub instanceof ArrayItem
                     && $sub->key instanceof String_
                 ) {
-                    if ($sub->key->value === array_values($childrenKeyPath)[0] ?? null)
-                    {
+                    if (
+                        [] !== $childrenKeyPath
+                        && $sub->key->value === array_values($childrenKeyPath)[0] ?? null
+                    ) {
                         array_shift($childrenKeyPath);
                         $this->replaceTargetNodeValue($sub, $childrenKeyPath, $configuration, $oldValue, $newValue);
                     }
