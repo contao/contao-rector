@@ -1,4 +1,3 @@
-
 <?php
 
 use Contao\Controller;
