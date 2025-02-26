@@ -41,11 +41,5 @@
         "test": "vendor/bin/phpunit"
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "config": {
-        "allow-plugins": {
-            "contao-components/installer": true,
-            "php-http/discovery": true
-        }
-    }
+    "prefer-stable": true
 }
