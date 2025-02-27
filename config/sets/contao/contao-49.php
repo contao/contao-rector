@@ -9,6 +9,7 @@ use Contao\Controller;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\Database;
+use Contao\Date;
 use Contao\Environment;
 use Contao\FileUpload;
 use Contao\Folder;
@@ -80,6 +81,7 @@ return static function (RectorConfig $rectorConfig): void {
         new LegacyFrameworkCallToStaticCall(Controller::class, 'optionChecked', Widget::class, 'optionChecked'),
         new LegacyFrameworkCallToStaticCall(Controller::class, 'findContentElement', ContentElement::class, 'findClass'),
         new LegacyFrameworkCallToStaticCall(Controller::class, 'findFrontendModule', Module::class, 'findClass'),
+        new LegacyFrameworkCallToStaticCall(System::class, 'parseDate', Date::class, 'parse'),
     ]);
 
     $rectorConfig->ruleWithConfiguration(MethodCallToFuncCallRector::class, [
