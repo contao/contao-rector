@@ -24,6 +24,11 @@ final class ContaoSetList
     /**
      * @var string
      */
+    final public const CONTAO_51 = __DIR__ . '/../../config/sets/contao/contao-51.php';
+
+    /**
+     * @var string
+     */
     final public const CONTAO_53 = __DIR__ . '/../../config/sets/contao/contao-53.php';
 
     /**
