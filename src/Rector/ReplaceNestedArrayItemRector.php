@@ -115,15 +115,17 @@ CODE_AFTER
             {
                 $targetPath = explode('.', $configuration->getTargetPath());
 
-                $childrenKeyPath = $this->matchPaths($targetPath, $arrParentKeyPath, $childTraversal);
+                $childrenKeyPaths = $this->matchPaths($targetPath, $arrParentKeyPath, $childTraversal);
 
-                // $childrenKeyPath is false if it never matched a path, otherwise it's always an array
-                if (false !== $childrenKeyPath)
+                if ([] !== $childrenKeyPaths)
                 {
                     $oldValue = $configuration->getOldValue();
                     $newValue = $configuration->getNewValue();
 
-                    $this->replaceTargetNodeValue($node, $childrenKeyPath, $configuration, $oldValue, $newValue);
+                    foreach ($childrenKeyPaths as $childrenKeyPath)
+                    {
+                        $this->replaceTargetNodeValue($node, $childrenKeyPath, $configuration, $oldValue, $newValue);
+                    }
                 }
             }
         }
@@ -135,64 +137,86 @@ CODE_AFTER
      * This function matches the paths based on the left assignment aka $parentPath and the right assignment which may
      * be a multidimensional array ($childTraversal).
      *
-     * On success, will return the path to traverse down for manipulation
-     * On failure, will return false
+     * On success, will return an array of paths to traverse down for manipulation
+     * On failure, will return an empty array
      */
-    private function matchPaths(array $targetPath, array $parentPath, array|string $childTraversalPath): array|false
+    private function matchPaths(array $targetPath, array $parentPath, array|string $childTraversalPath): array
     {
-        $childrenKeyPath = [];
+        $matches = [];
 
         // Early return because we are already at the end of the path
         if (self::PATH_END === $childTraversalPath)
         {
-            return $childrenKeyPath;
+            return [$parentPath];
         }
 
-        foreach ($targetPath as $value)
+        $this->findMatches($targetPath, $parentPath, $childTraversalPath, [], $matches);
+
+        return $matches;
+    }
+
+    private function findMatches(array $targetPath, array $parentPath, array|string $childTraversalPath, array $currentPath, array &$matches): void
+    {
+        // Store a valid match at the end of the path
+        if ($childTraversalPath === self::PATH_END)
         {
-            // Remove parent paths and traverse down
-            if (
-                [] !== $parentPath
-                && ($value === '*' || $value === array_values($parentPath)[0] ?? null)
-            ) {
-                array_shift($parentPath);
-                array_shift($targetPath);
-            }
-
-            // Wildcard support for array key traversing
-            elseif (
-                $value === '*'
-                && [] !== $childTraversalPath
-                && is_array($childTraversalPath)
-            ) {
-                $waypoint = array_keys($childTraversalPath)[0];
-
-                // Assuming it's a wildcard, we actually want to store the first key we find
-                $childTraversalPath = $childTraversalPath[$waypoint];
-                $childrenKeyPath[] = $waypoint;
-            }
-
-            elseif (isset($childTraversalPath[$value]))
-            {
-                $childrenKeyPath[] = $value;
-                $childTraversalPath = $childTraversalPath[$value];
-
-                // Early return if the target did match
-                if (self::PATH_END === $childTraversalPath)
-                {
-                    return $childrenKeyPath;
-                }
-            }
-
-            // This only ever happens if we never had a childTraversalPath in the first place such as
-            // $GLOBALS['TL_DCA']['tl_baz']['config']['dataContainer'] = 'Folder';
-            elseif ([] === $childTraversalPath)
-            {
-                return $childrenKeyPath;
-            }
+            $matches[] = $currentPath;
+            return;
         }
 
-        return false;
+        if (empty($targetPath) || !is_array($childTraversalPath))
+        {
+            return;
+        }
+
+        $value = array_shift($targetPath);
+
+        // Remove parent paths and traverse down
+        if (
+            [] !== $parentPath
+            && ($value === '*' || $value === reset($parentPath))
+        ) {
+            array_shift($parentPath);
+
+            $this->findMatches(
+                $targetPath,
+                $parentPath,
+                $childTraversalPath,
+                $currentPath,
+                $matches
+            );
+
+            return;
+        }
+
+        // Wildcard support for array key traversing
+        if ('*' === $value)
+        {
+            foreach ($childTraversalPath as $key => $subPath)
+            {
+                $this->findMatches(
+                    $targetPath,
+                    $parentPath,
+                    $subPath,
+                    array_merge($currentPath, [$key]),
+                    $matches
+                );
+            }
+
+            return;
+        }
+
+        // Normal traversal
+        if (isset($childTraversalPath[$value]))
+        {
+            $this->findMatches(
+                $targetPath,
+                $parentPath,
+                $childTraversalPath[$value],
+                array_merge($currentPath, [$value]),
+                $matches
+            );
+        }
     }
 
     private function normalizeNode(Node &$node): void
