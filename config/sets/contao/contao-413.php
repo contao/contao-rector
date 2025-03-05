@@ -13,17 +13,25 @@ use Contao\Controller;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\CoreBundle\Util\SimpleTokenParser;
+use Contao\DataContainer;
+use Contao\DC_File;
+use Contao\DC_Folder;
+use Contao\DC_Table;
 use Contao\Folder;
 use Contao\Rector\Rector\ConstantToServiceCallRector;
 use Contao\Rector\Rector\ContainerSessionToRequestStackSessionRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
+use Contao\Rector\Rector\ReplaceNestedArrayItemRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
 use Contao\Rector\ValueObject\ConstantToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
+use Contao\Rector\ValueObject\ReplaceNestedArrayItemValue;
 use Contao\RequestToken;
 use Contao\StringUtil;
 use Patchwork\Utf8;
+use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Name\FullyQualified;
 use Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector;
 use Rector\Arguments\ValueObject\ReplaceArgumentDefaultValue;
 use Rector\Config\RectorConfig;
@@ -87,11 +95,45 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->rule(InsertTagsServiceRector::class);
     $rectorConfig->rule(ContainerSessionToRequestStackSessionRector::class);
 
-    /*$rectorConfig->ruleWithConfiguration(ReplaceNestedArrayItemRector::class, [
-        new ReplaceNestedArrayItemValue('TL_DCA.tl_foo.config.dataContainer', 'Table', DC_Table::class),
-        new ReplaceNestedArrayItemValue('TL_DCA.tl_bar.config.dataContainer', 'File', DC_File::class),
-        new ReplaceNestedArrayItemValue('TL_DCA.tl_baz.config.dataContainer', 'Folder', DC_Folder::class)
-    ]);*/
+    $rectorConfig->ruleWithConfiguration(ReplaceNestedArrayItemRector::class, [
+        new ReplaceNestedArrayItemValue('TL_DCA.*.config.dataContainer', 'Table', DC_Table::class),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.config.dataContainer', 'File', DC_File::class),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.config.dataContainer', 'Folder', DC_Folder::class),
+
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.mode', 0, new ClassConstFetch(new FullyQualified(DataContainer::class), 'MODE_UNSORTED')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.mode', 1, new ClassConstFetch(new FullyQualified(DataContainer::class), 'MODE_SORTED')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.mode', 2, new ClassConstFetch(new FullyQualified(DataContainer::class), 'MODE_SORTABLE')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.mode', 3, new ClassConstFetch(new FullyQualified(DataContainer::class), 'MODE_SORTED_PARENT')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.mode', 4, new ClassConstFetch(new FullyQualified(DataContainer::class), 'MODE_PARENT')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.mode', 5, new ClassConstFetch(new FullyQualified(DataContainer::class), 'MODE_TREE')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.mode', 6, new ClassConstFetch(new FullyQualified(DataContainer::class), 'MODE_TREE_EXTENDED')),
+
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 1, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_INITIAL_LETTER_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 2, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_INITIAL_LETTER_DESC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 3, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_INITIAL_LETTERS_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 4, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_INITIAL_LETTERS_DESC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 5, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_DAY_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 6, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_DAY_DESC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 7, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_MONTH_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 8, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_MONTH_DESC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 9, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_YEAR_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 10, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_YEAR_DESC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 11, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.list.sorting.flag', 12, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_DESC')),
+
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 1, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_INITIAL_LETTER_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 2, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_INITIAL_LETTER_DESC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 3, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_INITIAL_LETTERS_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 4, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_INITIAL_LETTERS_DESC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 5, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_DAY_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 6, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_DAY_DESC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 7, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_MONTH_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 8, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_MONTH_DESC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 9, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_YEAR_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 10, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_YEAR_DESC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 11, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_ASC')),
+        new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 12, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_DESC')),
+    ]);
 
     $rectorConfig->ruleWithConfiguration(ConstantToServiceCallRector::class, [
         new ConstantToServiceCall('REQUEST_TOKEN', 'contao.csrf.token_manager', 'getDefaultTokenValue'),
