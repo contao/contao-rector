@@ -238,7 +238,7 @@ CODE_AFTER
      * This runs recursively till it either replaces the whole node whilst traversing down the nodes using the
      * childrenKeyPath from the matchPaths function until it confirms the type of the oldValue replacing the new one.
      */
-    private function replaceTargetNodeValue(Expr $node, array $childrenKeyPath, ReplaceNestedArrayItemValue $configuration, mixed $oldValue, mixed $newValue): void
+    private function replaceTargetNodeValue(mixed $node, array $childrenKeyPath, ReplaceNestedArrayItemValue $configuration, mixed $oldValue, mixed $newValue): void
     {
         if (isset($node->expr))
         {
