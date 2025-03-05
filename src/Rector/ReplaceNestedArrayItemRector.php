@@ -147,6 +147,21 @@ CODE_AFTER
         // Early return because we are already at the end of the path
         if (self::PATH_END === $childTraversalPath)
         {
+            // Array length differs thus not a real match
+            if (count($targetPath) !== count($parentPath))
+            {
+                return [];
+            }
+
+            // Match against the target path
+            foreach ($targetPath as $index => $value)
+            {
+                if ('*' !== $value && $value !== $parentPath[$index])
+                {
+                    return [];
+                }
+            }
+
             return [$parentPath];
         }
 
