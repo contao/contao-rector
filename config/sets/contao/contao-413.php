@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Contao\Config;
 use Contao\CoreBundle\Twig\Extension\ContaoExtension;
 use Contao\CoreBundle\Security\TwoFactor\BackupCodeManager;
 use Contao\CoreBundle\Cron\Cron;
@@ -30,8 +31,11 @@ use Contao\Rector\ValueObject\ReplaceNestedArrayItemValue;
 use Contao\RequestToken;
 use Contao\StringUtil;
 use Patchwork\Utf8;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name\FullyQualified;
+use PhpParser\Node\Scalar\String_;
 use Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector;
 use Rector\Arguments\ValueObject\ReplaceArgumentDefaultValue;
 use Rector\Config\RectorConfig;
@@ -133,6 +137,12 @@ return static function (RectorConfig $rectorConfig): void {
         new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 10, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_YEAR_DESC')),
         new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 11, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_ASC')),
         new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 12, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_DESC')),
+
+        new ReplaceNestedArrayItemValue(
+            'TL_DCA.*.fields.*.eval.extensions',
+            new StaticCall(new FullyQualified(Config::class), 'get', [new Arg(new String_('validImageTypes'))]),
+            '%contao.image.valid_extensions%'
+        )
     ]);
 
     $rectorConfig->ruleWithConfiguration(ConstantToServiceCallRector::class, [
