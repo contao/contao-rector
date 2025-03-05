@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Contao\Rector\Set;
 
-use Rector\Set\Contract\SetListInterface;
-
-final class ContaoLevelSetList implements SetListInterface
+final class ContaoLevelSetList
 {
     /**
      * @var string
