@@ -20,14 +20,16 @@ class Foo
                     ],
                 ],
             ],
+
             'fields' => [
                 'screenshot' => [
+                    'flag' => 1,
                     'exclude' => true,
                     'inputType' => 'fileTree',
                     'eval' => ['fieldType'=>'radio', 'filesOnly'=>true, 'isGallery'=>true, 'extensions'=> Config::get('validImageTypes')],
-                    'sql' => "binary(16) NULL"
+                    'sql' => "binary(16) NULL",
                 ],
-            ]
+            ],
         ];
     }
 }
@@ -55,14 +57,16 @@ class Foo
                     ],
                 ],
             ],
+
             'fields' => [
                 'screenshot' => [
+                    'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
                     'exclude' => true,
                     'inputType' => 'fileTree',
                     'eval' => ['fieldType'=>'radio', 'filesOnly'=>true, 'isGallery'=>true, 'extensions'=> '%contao.image.valid_extensions%'],
-                    'sql' => "binary(16) NULL"
+                    'sql' => "binary(16) NULL",
                 ],
-            ]
+            ],
         ];
     }
 }
