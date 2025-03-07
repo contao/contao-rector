@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Contao\Config;
 use Contao\CoreBundle\Twig\Extension\ContaoExtension;
 use Contao\CoreBundle\Security\TwoFactor\BackupCodeManager;
 use Contao\CoreBundle\Cron\Cron;
@@ -18,6 +19,7 @@ use Contao\DC_File;
 use Contao\DC_Folder;
 use Contao\DC_Table;
 use Contao\Folder;
+use Contao\FrontendUser;
 use Contao\Rector\Rector\ConstantToServiceCallRector;
 use Contao\Rector\Rector\ContainerSessionToRequestStackSessionRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
@@ -29,10 +31,15 @@ use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
 use Contao\Rector\ValueObject\ReplaceNestedArrayItemValue;
 use Contao\RequestToken;
 use Contao\StringUtil;
+use Contao\System;
 use Patchwork\Utf8;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name\FullyQualified;
+use PhpParser\Node\Scalar\String_;
 use Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector;
+use Rector\Arguments\Rector\FuncCall\FunctionArgumentDefaultValueReplacerRector;
 use Rector\Arguments\ValueObject\ReplaceArgumentDefaultValue;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector;
@@ -133,10 +140,19 @@ return static function (RectorConfig $rectorConfig): void {
         new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 10, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_YEAR_DESC')),
         new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 11, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_ASC')),
         new ReplaceNestedArrayItemValue('TL_DCA.*.fields.*.flag', 12, new ClassConstFetch(new FullyQualified(DataContainer::class), 'SORT_DESC')),
+
+        new ReplaceNestedArrayItemValue(
+            'TL_DCA.*.fields.*.eval.extensions',
+            new StaticCall(new FullyQualified(Config::class), 'get', [new Arg(new String_('validImageTypes'))]),
+            '%contao.image.valid_extensions%'
+        )
     ]);
 
     $rectorConfig->ruleWithConfiguration(ConstantToServiceCallRector::class, [
         new ConstantToServiceCall('REQUEST_TOKEN', 'contao.csrf.token_manager', 'getDefaultTokenValue'),
+
+        new ConstantToServiceCall('TL_ASSETS_URL', 'contao.assets.assets_context', 'getStaticUrl'),
+        new ConstantToServiceCall('TL_FILES_URL', 'contao.assets.files_context', 'getStaticUrl'),
     ]);
 
     $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToServiceCallRector::class, [
@@ -159,6 +175,9 @@ return static function (RectorConfig $rectorConfig): void {
         new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, BackupCodeManager::class, 'contao.security.two_factor.backup_code_manager'),
         new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, ContaoExtension::class, 'contao.twig.extension'),
         new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, SimpleTokenParser::class, 'contao.string.simple_token_parser'),
+
+        new ReplaceArgumentDefaultValue(System::class, 'import', 0, 'BackendUser', new ClassConstFetch(new FullyQualified(BackendUser::class), 'class')),
+        new ReplaceArgumentDefaultValue(System::class, 'import', 0, 'FrontendUser', new ClassConstFetch(new FullyQualified(FrontendUser::class), 'class')),
     ]);
 
     // Contao 4.12
