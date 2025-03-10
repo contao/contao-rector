@@ -37,6 +37,10 @@ CODE_AFTER
     {
         assert($node instanceof Node\Expr\MethodCall);
 
+        if ($node->isFirstClassCallable()) {
+            return null;
+        }
+
         $args = $node->getArgs();
 
         if (
