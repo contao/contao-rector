@@ -57,7 +57,7 @@ CODE_AFTER,
 
         $newValue = str_replace($this->configuration[0], $this->configuration[1], $node->value);
 
-        if ($node->value !== $newValue) {
+        if ($node->value === $newValue) {
             return null;
         }
 
