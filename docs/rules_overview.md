@@ -1,4 +1,4 @@
-# 14 Rules Overview
+# 15 Rules Overview
 
 ## ConstantToClassConstantRector
 
@@ -192,6 +192,21 @@ Replaces array item values based on a configuration with wild card support and s
          ],
      ]
  ];
+```
+
+<br>
+
+## StringReplaceRector
+
+Replaces text occurrences within a string
+
+:wrench: **configure it!**
+
+- class: [`Contao\Rector\Rector\StringReplaceRector`](../src/Rector/StringReplaceRector.php)
+
+```diff
+-$foo = '{foo_legend},foo;{bar_legend:hide},bar;{baz_legend:hide},baz';
++$foo = '{foo_legend},foo;{bar_legend:collapsed},bar;{baz_legend:collapsed},baz';
 ```
 
 <br>
