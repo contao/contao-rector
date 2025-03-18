@@ -7,10 +7,11 @@ namespace Contao\Rector\Rector;
 use Contao\Controller;
 use Contao\InsertTags;
 use PhpParser\Node;
+use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
-final class InsertTagsServiceRector extends AbstractLegacyFrameworkCallRector
+final class InsertTagsServiceRector extends AbstractLegacyFrameworkCallRector implements DocumentedRuleInterface
 {
     public function getRuleDefinition(): RuleDefinition
     {

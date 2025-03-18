@@ -9,11 +9,12 @@ use Contao\Controller;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToStaticCall;
 use PhpParser\Node;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
+use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
-final class LegacyFrameworkCallToStaticCallRector extends AbstractLegacyFrameworkCallRector implements ConfigurableRectorInterface
+final class LegacyFrameworkCallToStaticCallRector extends AbstractLegacyFrameworkCallRector implements ConfigurableRectorInterface, DocumentedRuleInterface
 {
     /**
      * @var LegacyFrameworkCallToStaticCall[]

@@ -8,10 +8,11 @@ use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\System;
 use PhpParser\Node;
 use Psr\Log\LogLevel;
+use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
-final class SystemLogToMonologRector extends AbstractLegacyFrameworkCallRector
+final class SystemLogToMonologRector extends AbstractLegacyFrameworkCallRector implements DocumentedRuleInterface
 {
     public function getRuleDefinition(): RuleDefinition
     {

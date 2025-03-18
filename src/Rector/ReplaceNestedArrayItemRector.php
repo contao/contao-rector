@@ -20,11 +20,12 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Rector\AbstractRector;
+use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
-final class ReplaceNestedArrayItemRector extends AbstractRector implements ConfigurableRectorInterface
+final class ReplaceNestedArrayItemRector extends AbstractRector implements ConfigurableRectorInterface, DocumentedRuleInterface
 {
     const PATH_END = '__end__';
 

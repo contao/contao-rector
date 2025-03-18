@@ -8,11 +8,12 @@ use Contao\Rector\ValueObject\ConstantToServiceParameter;
 use PhpParser\Node;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Rector\AbstractRector;
+use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use Webmozart\Assert\Assert;
 
-final class ConstantToServiceParameterRector extends AbstractRector implements ConfigurableRectorInterface
+final class ConstantToServiceParameterRector extends AbstractRector implements ConfigurableRectorInterface, DocumentedRuleInterface
 {
     /**
      * @var array<ConstantToServiceParameter>

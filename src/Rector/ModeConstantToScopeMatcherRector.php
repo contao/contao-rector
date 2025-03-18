@@ -15,10 +15,11 @@ use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Type\Constant\ConstantStringType;
 use Rector\Rector\AbstractRector;
+use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
-final class ModeConstantToScopeMatcherRector extends AbstractRector
+final class ModeConstantToScopeMatcherRector extends AbstractRector implements DocumentedRuleInterface
 {
     public function getRuleDefinition(): RuleDefinition
     {

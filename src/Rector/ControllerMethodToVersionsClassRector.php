@@ -6,10 +6,11 @@ namespace Contao\Rector\Rector;
 
 use Contao\Controller;
 use PhpParser\Node;
+use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 
-final class ControllerMethodToVersionsClassRector extends AbstractLegacyFrameworkCallRector
+final class ControllerMethodToVersionsClassRector extends AbstractLegacyFrameworkCallRector implements DocumentedRuleInterface
 {
     public function getRuleDefinition(): RuleDefinition
     {
