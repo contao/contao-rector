@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Contao\Rector\Rector\RemoveMethodCallRector;
+use Contao\Rector\ValueObject\RemoveMethodCall;
 use Contao\StringUtil;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
@@ -15,8 +16,8 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
 
     $rectorConfig->ruleWithConfiguration(RemoveMethodCallRector::class, [
-        [StringUtil::class, 'toXhtml'],
-        [StringUtil::class, 'toHtml5'],
+        new RemoveMethodCall(StringUtil::class, 'toXhtml'),
+        new RemoveMethodCall(StringUtil::class, 'toHtml5'),
     ]);
 
     // TODO: remove use of nl2br_pre
