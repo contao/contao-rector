@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Contao\Rector\Tests\Rector\StringReplaceRector;
+namespace Contao\Rector\Tests\Rector\RemoveMethodCallRector;
 
 use Iterator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Rector\Testing\PHPUnit\AbstractRectorTestCase;
 
-final class StringReplaceRectorTest extends AbstractRectorTestCase
+final class RemoveMethodCallRectorTest extends AbstractRectorTestCase
 {
     #[DataProvider('provideData')]
     public function test(string $filePath): void
