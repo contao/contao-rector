@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Contao\Rector\Tests\Rector\DefaultRector;
+namespace Contao\Rector\Tests\Rector\RemoveMethodCallRector;
 
 use Iterator;
 use PHPUnit\Framework\Attributes\DataProvider;

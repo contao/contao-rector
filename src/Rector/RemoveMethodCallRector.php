@@ -4,6 +4,7 @@ declare (strict_types=1);
 
 namespace Contao\Rector\Rector;
 
+use Contao\Rector\ValueObject\RemoveMethodCall;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Expression;
 use PHPStan\Type\ObjectType;
@@ -14,41 +15,40 @@ use Webmozart\Assert\Assert;
 class RemoveMethodCallRector extends AbstractRector implements ConfigurableRectorInterface
 {
     /**
-     * @var list<array{0: string, 1: string}>
+     * @var list<RemoveMethodCall>
      */
-    private array $removedMethods = [];
+    private array $remove = [];
 
     /**
      * @return array<class-string<Node>>
      */
     public function getNodeTypes() : array
     {
-        return [Expression::class];
+        return [
+            Node\Expr\StaticCall::class,
+            Node\Expr\MethodCall::class,
+        ];
     }
 
     /**
      * @param Expression $node
      */
-    public function refactor(Node $node) : ?int
+    public function refactor(Node $node) : Node|null
     {
-        $assign = $node->expr;
-
-        if (!$assign instanceof Node\Expr\Assign) {
+        if (!$node instanceof Node\Expr\StaticCall && !$node instanceof Node\Expr\MethodCall) {
             return null;
         }
 
-        $expr = $assign->expr;
-
-        if (!$expr instanceof Node\Expr\StaticCall) {
-            return null;
-        }
-
-        foreach ($this->removedMethods as $removed) {
-            if (!$this->isName($expr->name, $removed[1]) || $this->getName($expr->class) !== $removed[0]) {
+        foreach ($this->remove as $remove) {
+            if (
+                !$this->isName($node->name, $remove->getMethod())
+                || ($node instanceof Node\Expr\StaticCall && $this->getName($node->class) !== $remove->getClass())
+                || ($node instanceof Node\Expr\MethodCall && !$this->isObjectType($node->var, new ObjectType($remove->getClass())))
+            ) {
                 continue;
             }
 
-            $assign->expr = $expr->args[0]->value;
+            return $node->args[$remove->getArgument()]->value;
         }
 
         return null;
@@ -59,7 +59,7 @@ class RemoveMethodCallRector extends AbstractRector implements ConfigurableRecto
      */
     public function configure(array $configuration) : void
     {
-        Assert::allIsArray($configuration);
-        $this->removedMethods = $configuration;
+        Assert::allIsInstanceOf($configuration, RemoveMethodCall::class);
+        $this->remove = $configuration;
     }
 }
