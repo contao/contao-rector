@@ -4,8 +4,21 @@ declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
+use Rector\Renaming\Rector\Name\RenameClassRector;
 
 return static function (RectorConfig $rectorConfig): void {
+    $rectorConfig->ruleWithConfiguration(RenameClassRector::class, [
+        \Contao\Template::class => \Contao\CoreBundle\Twig\FragmentTemplate::class,
+        \Contao\ContentMedia::class => \Contao\ContentPlayer::class,
+        \Contao\FormCheckBox::class => \Contao\FormCheckbox::class,
+        \Contao\FormRadioButton::class => \Contao\FormRadio::class,
+        \Contao\FormSelectMenu::class => \Contao\FormSelect::class,
+        \Contao\FormTextField::class => \Contao\FormText::class,
+        \Contao\FormTextArea::class => \Contao\FormTextarea::class,
+        \Contao\FormFileUpload::class => \Contao\FormUpload::class,
+        \Contao\ModulePassword::class => \Contao\ModuleLostPassword::class,
+    ]);
+
     $rectorConfig->ruleWithConfiguration(RenameFunctionRector::class, [
         // Added in Contao 4.10
         'nl2br_html5' => 'nl2br',
