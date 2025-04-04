@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Contao\Rector\Rector\RemoveMethodCallRector;
+use Contao\StringUtil;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 
@@ -12,8 +14,11 @@ return static function (RectorConfig $rectorConfig): void {
         'nl2br_xhtml' => 'nl2br',
     ]);
 
-    // TODO: remove use of StringUtil::toXhtml
-    // TODO: remove use of StringUtil::toHtml5
+    $rectorConfig->ruleWithConfiguration(RemoveMethodCallRector::class, [
+        [StringUtil::class, 'toXhtml'],
+        [StringUtil::class, 'toHtml5'],
+    ]);
+
     // TODO: remove use of nl2br_pre
     // TODO: remove use of basename_natcasecmp
     // TODO: remove use of basename_natcasercmp
