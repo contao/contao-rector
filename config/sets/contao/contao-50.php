@@ -8,7 +8,6 @@ use Rector\Renaming\Rector\Name\RenameClassRector;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->ruleWithConfiguration(RenameClassRector::class, [
-        \Contao\Template::class => \Contao\CoreBundle\Twig\FragmentTemplate::class,
         \Contao\ContentMedia::class => \Contao\ContentPlayer::class,
         \Contao\FormCheckBox::class => \Contao\FormCheckbox::class,
         \Contao\FormRadioButton::class => \Contao\FormRadio::class,
