@@ -302,7 +302,7 @@ CODE_AFTER
                 ) {
                     if (
                         [] !== $childrenKeyPath
-                        && $sub->key->value === array_values($childrenKeyPath)[0] ?? null
+                        && $sub->key->value === (array_values($childrenKeyPath)[0] ?? null)
                     ) {
                         array_shift($childrenKeyPath);
                         $this->replaceTargetNodeValue($sub, $childrenKeyPath, $configuration, $oldValue, $newValue);
@@ -310,7 +310,7 @@ CODE_AFTER
 
                     elseif (
                         [] === $childrenKeyPath
-                        && $sub->key->value === array_values($childrenKeyPath)[0] ?? null
+                        && $sub->key->value === (array_values($childrenKeyPath)[0] ?? null)
                         && $this->matchesReplacementValue($sub, $oldValue)
                     ) {
                         $sub = $newValue;
