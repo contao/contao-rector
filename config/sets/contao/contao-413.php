@@ -35,11 +35,13 @@ use Contao\System;
 use Patchwork\Utf8;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Scalar\String_;
 use Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector;
-use Rector\Arguments\Rector\FuncCall\FunctionArgumentDefaultValueReplacerRector;
 use Rector\Arguments\ValueObject\ReplaceArgumentDefaultValue;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector;
@@ -97,6 +99,26 @@ return static function (RectorConfig $rectorConfig): void {
 
     // Contao 4.12
     $rectorConfig->rule(SystemLanguagesToServiceRector::class);
+    $rectorConfig->ruleWithConfiguration(ReplaceNestedArrayItemRector::class, [
+        new ReplaceNestedArrayItemValue(
+            'TL_DCA.*.fields.*.options',
+            new StaticCall(new FullyQualified(System::class), 'getCountries'),
+            new FuncCall(
+                new Name('array_change_key_case'), [
+                    new Arg(
+                        new MethodCall(
+                            new MethodCall(
+                                new StaticCall(new FullyQualified(System::class), 'getContainer'),
+                                'get',
+                                [new Arg(new String_('contao.intl.countries'))]
+                            ),
+                            'getCountries'
+                        )
+                    )
+                ]
+            )
+        )
+    ]);
 
     // Contao 4.13
     $rectorConfig->rule(InsertTagsServiceRector::class);
