@@ -8,7 +8,6 @@ use Contao\Config;
 use Contao\Rector\ValueObject\ReplaceNestedArrayItemValue;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
-use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ArrayItem;
@@ -303,7 +302,7 @@ CODE_AFTER
                 ) {
                     if (
                         [] !== $childrenKeyPath
-                        && $sub->key->value === array_values($childrenKeyPath)[0] ?? null
+                        && $sub->key->value === (array_values($childrenKeyPath)[0] ?? null)
                     ) {
                         array_shift($childrenKeyPath);
                         $this->replaceTargetNodeValue($sub, $childrenKeyPath, $configuration, $oldValue, $newValue);
@@ -311,6 +310,7 @@ CODE_AFTER
 
                     elseif (
                         [] === $childrenKeyPath
+                        && $sub->key->value === (array_values($childrenKeyPath)[0] ?? null)
                         && $this->matchesReplacementValue($sub, $oldValue)
                     ) {
                         $sub = $newValue;

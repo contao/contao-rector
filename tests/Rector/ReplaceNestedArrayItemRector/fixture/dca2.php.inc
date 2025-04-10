@@ -500,7 +500,7 @@ class Foo
                     'filter'                => true,
                     'sorting'               => true,
                     'inputType'             => 'select',
-                    'options'               => \Contao\System::getCountries(),
+                    'options'               => array_change_key_case(\Contao\System::getContainer()->get('contao.intl.countries')->getCountries()),
                     'eval'                  => array('mandatory'=>true, 'feEditable'=>true, 'feGroup'=>'address', 'tl_class'=>'w50', 'chosen'=>true),
                     'sql'                   => "varchar(32) NOT NULL default ''",
                 ),
