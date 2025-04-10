@@ -9,6 +9,7 @@ use Contao\Rector\Rector\ChangeTraitRector;
 use Contao\Rector\Rector\StringReplaceRector;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector;
+use Rector\Renaming\Rector\Name\RenameClassRector;
 use Rector\Renaming\ValueObject\RenameClassAndConstFetch;
 
 return static function (RectorConfig $rectorConfig): void {
@@ -21,7 +22,7 @@ return static function (RectorConfig $rectorConfig): void {
         '_legend:collapsed}'
     ]);
 
-    $rectorConfig->ruleWithConfiguration(ChangeTraitRector::class, [
+    $rectorConfig->ruleWithConfiguration(RenameClassRector::class, [
         ModelMetadataTrait::class => MetadataTrait::class
     ]);
 };
