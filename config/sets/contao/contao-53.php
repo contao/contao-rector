@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Contao\CoreBundle\File\ModelMetadataTrait;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\Model\MetadataTrait;
-use Contao\Rector\Rector\ChangeTraitRector;
 use Contao\Rector\Rector\StringReplaceRector;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector;
