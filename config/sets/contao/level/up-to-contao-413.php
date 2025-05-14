@@ -15,7 +15,7 @@ return static function (RectorConfig $rectorConfig): void {
         ContaoSetList::CONTAO_413,
         LevelSetList::UP_TO_PHP_74,
         DoctrineSetList::DOCTRINE_DBAL_30,
-        DoctrineSetList::DOCTRINE_ORM_29,
+        DoctrineSetList::DOCTRINE_ORM_219,
         SymfonySetList::SYMFONY_50,
         SymfonySetList::SYMFONY_50_TYPES,
         SymfonySetList::SYMFONY_51,
