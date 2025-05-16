@@ -51,7 +51,7 @@ CODE_AFTER
 
         if (
             !$left instanceof FuncCall
-            || !$this->nodeNameResolver->isName($left, 'defined')
+            || !$this->isName($left, 'defined')
             || 1 !== \count($left->getArgs())
             || !($arg = $left->getArgs()[0]->value)
             || !$arg instanceof String_
