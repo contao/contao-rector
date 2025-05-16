@@ -37,6 +37,12 @@
             "Contao\\Rector\\Tests\\": "tests"
         }
     },
+    "config": {
+        "allow-plugins": {
+            "contao-components/installer": false,
+            "php-http/discovery": false
+        }
+    },
     "scripts": {
         "test": "vendor/bin/phpunit"
     },
