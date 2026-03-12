@@ -34,10 +34,14 @@ use Contao\StringUtil;
 use Contao\System;
 use Patchwork\Utf8;
 use PhpParser\Node\Arg;
+use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ArrayDimFetch;
+use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Scalar\String_;
@@ -167,6 +171,19 @@ return static function (RectorConfig $rectorConfig): void {
             'TL_DCA.*.fields.*.eval.extensions',
             new StaticCall(new FullyQualified(Config::class), 'get', [new Arg(new String_('validImageTypes'))]),
             '%contao.image.valid_extensions%'
+        ),
+
+        new ReplaceNestedArrayItemValue(
+            'TL_DCA.*.fields.*.options',
+            new ArrayDimFetch(new Variable('GLOBALS'),
+                new String_('TL_CSS_UNITS')
+            ),
+            new Array_([
+                new ArrayItem(new String_('px')),
+                new ArrayItem(new String_('%')),
+                new ArrayItem(new String_('em')),
+                new ArrayItem(new String_('rem')),
+            ]),
         )
     ]);
 

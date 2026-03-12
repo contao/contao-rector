@@ -6,18 +6,13 @@ use Contao\CoreBundle\Controller\ContentElement\AbstractContentElementController
 use Contao\CoreBundle\Controller\FrontendModule\AbstractFrontendModuleController;
 use Contao\Rector\Rector\ChangeDerivateClassReturnTypeRector;
 use Contao\Rector\Rector\RemoveMethodCallRector;
-use Contao\Rector\Rector\ReplaceNestedArrayItemRector;
 use Contao\Rector\ValueObject\ChangeDerivateClassReturnType;
 use Contao\Rector\ValueObject\RemoveMethodCall;
-use Contao\Rector\ValueObject\ReplaceNestedArrayItemValue;
 use Contao\StringUtil;
-use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Name\FullyQualified;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\Renaming\Rector\Name\RenameClassRector;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Scalar;
 use Symfony\Component\HttpFoundation\Response;
 
 return static function (RectorConfig $rectorConfig): void {
@@ -56,21 +51,6 @@ return static function (RectorConfig $rectorConfig): void {
             'UnionType',
             new FullyQualified(Response::class),
         ),
-    ]);
-
-    $rectorConfig->ruleWithConfiguration(ReplaceNestedArrayItemRector::class, [
-        new ReplaceNestedArrayItemValue(
-            'TL_DCA.*.fields.*.options',
-            new Expr\ArrayDimFetch(new Expr\Variable('GLOBALS'),
-                new Scalar\String_('TL_CSS_UNITS')
-            ),
-            new Array_([
-                new Expr\ArrayItem(new Scalar\String_('px')),
-                new Expr\ArrayItem(new Scalar\String_('%')),
-                new Expr\ArrayItem(new Scalar\String_('em')),
-                new Expr\ArrayItem(new Scalar\String_('rem')),
-            ]),
-        )
     ]);
 
     // TODO: remove use of nl2br_pre
