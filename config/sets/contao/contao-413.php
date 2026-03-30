@@ -207,6 +207,7 @@ return static function (RectorConfig $rectorConfig): void {
         new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'contao.image.image_sizes', 'contao.image.sizes'),
         new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'contao.image.resizer', 'contao.image.legacy_resizer'),
         new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'contao.opt-in', 'contao.opt_in'),
+        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'logger', 'monolog.logger.contao'),
         new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, Cron::class, 'contao.cron'),
         new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, ContaoFrameworkInterface::class, 'contao.framework'),
         new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, FigureRenderer::class, 'contao.image.studio.figure_renderer'),
