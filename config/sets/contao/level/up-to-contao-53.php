@@ -12,7 +12,6 @@ return RectorConfig::configure()
     ->withSets([
         ContaoLevelSetList::UP_TO_CONTAO_51,
         ContaoSetList::CONTAO_53,
-        DoctrineSetList::DOCTRINE_ORM_214,
         SymfonySetList::SYMFONY_60,
         SymfonySetList::SYMFONY_61,
         SymfonySetList::SYMFONY_62,
