@@ -65,7 +65,7 @@ CODE_AFTER
         }
 
         $logLevel = 'INFO';
-        if ('Contao\CoreBundle\Monolog\ContaoContext::ERROR' === $this->getName($level) || 'ERROR' === $level->value) {
+        if ('Contao\CoreBundle\Monolog\ContaoContext::ERROR' === $this->getName($level) || ($level instanceof Node\Scalar\String_ && 'ERROR' === $level->value)) {
             $logLevel = 'ERROR';
         }
 

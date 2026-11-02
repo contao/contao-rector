@@ -106,6 +106,8 @@ CODE_AFTER
             return null;
         }
 
+        $hasChanged = false;
+
         if ($node->var instanceof ArrayDimFetch)
         {
             $arrParentKeyPath = $this->findParentKeys($node->var);
@@ -124,13 +126,13 @@ CODE_AFTER
 
                     foreach ($childrenKeyPaths as $childrenKeyPath)
                     {
-                        $this->replaceTargetNodeValue($node, $childrenKeyPath, $configuration, $oldValue, $newValue);
+                        $hasChanged = $this->replaceTargetNodeValue($node, $childrenKeyPath, $configuration, $oldValue, $newValue) || $hasChanged;
                     }
                 }
             }
         }
 
-        return null;
+        return $hasChanged ? $node : null;
     }
 
     /**
@@ -277,7 +279,7 @@ CODE_AFTER
      * This runs recursively till it either replaces the whole node whilst traversing down the nodes using the
      * childrenKeyPath from the matchPaths function until it confirms the type of the oldValue replacing the new one.
      */
-    private function replaceTargetNodeValue(mixed $node, array $childrenKeyPath, ReplaceNestedArrayItemValue $configuration, mixed $oldValue, mixed $newValue): void
+    private function replaceTargetNodeValue(mixed $node, array $childrenKeyPath, ReplaceNestedArrayItemValue $configuration, mixed $oldValue, mixed $newValue): bool
     {
         if (isset($node->expr))
         {
@@ -289,8 +291,10 @@ CODE_AFTER
         }
         else
         {
-            return;
+            return false;
         }
+
+        $hasChanged = false;
 
         if ($item instanceof Array_)
         {
@@ -305,7 +309,7 @@ CODE_AFTER
                         && $sub->key->value === (array_values($childrenKeyPath)[0] ?? null)
                     ) {
                         array_shift($childrenKeyPath);
-                        $this->replaceTargetNodeValue($sub, $childrenKeyPath, $configuration, $oldValue, $newValue);
+                        $hasChanged = $this->replaceTargetNodeValue($sub, $childrenKeyPath, $configuration, $oldValue, $newValue) || $hasChanged;
                     }
 
                     elseif (
@@ -314,7 +318,7 @@ CODE_AFTER
                         && $this->matchesReplacementValue($sub, $oldValue)
                     ) {
                         $sub = $newValue;
-                        return;
+                        return true;
                     }
                 }
             }
@@ -322,7 +326,11 @@ CODE_AFTER
         elseif ($this->matchesReplacementValue($item, $oldValue))
         {
             $item = $newValue;
+
+            return true;
         }
+
+        return $hasChanged;
     }
 
     /**
