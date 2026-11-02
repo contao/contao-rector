@@ -1,4 +1,4 @@
-# 17 Rules Overview
+# 19 Rules Overview
 
 ## ConstantToClassConstantRector
 
@@ -105,6 +105,23 @@ Fixes deprecated `Controller::replaceInsertTags()` to service calls
 
 <br>
 
+## LegacyFrameworkCallToFuncCallRector
+
+Fixes deprecated legacy framework methods to function calls
+
+:wrench: **configure it!**
+
+- class: [`Contao\Rector\Rector\LegacyFrameworkCallToFuncCallRector`](../src/Rector/LegacyFrameworkCallToFuncCallRector.php)
+
+```diff
+-$exists = \Contao\Controller::classFileExists($class);
+-$exists = $this->classFileExists($class);
++$exists = class_exists($class);
++$exists = class_exists($class);
+```
+
+<br>
+
 ## LegacyFrameworkCallToInstanceCallRector
 
 Fixes deprecated legacy framework method to static calls
@@ -150,6 +167,21 @@ Fixes deprecated legacy framework method to static calls
 -$html = $this->getImage($image, $width, $height);
 +$html = \Contao\Image::get($image, $width, $height);
 +$html = \Contao\Image::get($image, $width, $height);
+```
+
+<br>
+
+## LegacyFunctionToStaticCallRector
+
+Fixes deprecated legacy functions to static calls
+
+:wrench: **configure it!**
+
+- class: [`Contao\Rector\Rector\LegacyFunctionToStaticCallRector`](../src/Rector/LegacyFunctionToStaticCallRector.php)
+
+```diff
+-$data = deserialize($value, true);
++$data = \Contao\StringUtil::deserialize($value, true);
 ```
 
 <br>

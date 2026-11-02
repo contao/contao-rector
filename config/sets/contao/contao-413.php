@@ -25,11 +25,13 @@ use Contao\Rector\Rector\ContainerSessionToRequestStackSessionRector;
 use Contao\Rector\Rector\ContainerToServiceIdRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
+use Contao\Rector\Rector\LegacyFunctionToStaticCallRector;
 use Contao\Rector\Rector\ReplaceNestedArrayItemRector;
 use Contao\Rector\Rector\SystemImportToClassConstantRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
 use Contao\Rector\ValueObject\ConstantToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
+use Contao\Rector\ValueObject\LegacyFunctionToStaticCall;
 use Contao\Rector\ValueObject\ReplaceNestedArrayItemValue;
 use Contao\RequestToken;
 use Contao\StringUtil;
@@ -51,18 +53,16 @@ use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\Renaming\ValueObject\RenameClassAndConstFetch;
-use Rector\Transform\Rector\FuncCall\FuncCallToStaticCallRector;
 use Rector\Transform\Rector\StaticCall\StaticCallToFuncCallRector;
-use Rector\Transform\ValueObject\FuncCallToStaticCall;
 use Rector\Transform\ValueObject\StaticCallToFuncCall;
 
 return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->ruleWithConfiguration(FuncCallToStaticCallRector::class, [
+    $rectorConfig->ruleWithConfiguration(LegacyFunctionToStaticCallRector::class, [
         // Contao 4.10
-        new FuncCallToStaticCall('scan', Folder::class, 'scan'),
-        new FuncCallToStaticCall('ampersand', StringUtil::class, 'ampersand'),
-        new FuncCallToStaticCall('array_insert', ArrayUtil::class, 'arrayInsert'),
-        new FuncCallToStaticCall('array_is_assoc', ArrayUtil::class, 'isAssoc'),
+        new LegacyFunctionToStaticCall('scan', Folder::class, 'scan'),
+        new LegacyFunctionToStaticCall('ampersand', StringUtil::class, 'ampersand'),
+        new LegacyFunctionToStaticCall('array_insert', ArrayUtil::class, 'arrayInsert'),
+        new LegacyFunctionToStaticCall('array_is_assoc', ArrayUtil::class, 'isAssoc'),
     ]);
 
     $rectorConfig->ruleWithConfiguration(RenameFunctionRector::class, [

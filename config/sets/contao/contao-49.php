@@ -19,17 +19,21 @@ use Contao\Module;
 use Contao\Rector\Rector\ConstantToClassConstantRector;
 use Contao\Rector\Rector\ConstantToServiceParameterRector;
 use Contao\Rector\Rector\ControllerMethodToVersionsClassRector;
+use Contao\Rector\Rector\LegacyFrameworkCallToFuncCallRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToInstanceCallRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToStaticCallRector;
+use Contao\Rector\Rector\LegacyFunctionToStaticCallRector;
 use Contao\Rector\Rector\LoginConstantsToSymfonySecurityRector;
 use Contao\Rector\Rector\ModeConstantToScopeMatcherRector;
 use Contao\Rector\Rector\SystemLogToMonologRector;
 use Contao\Rector\ValueObject\ConstantToClassConstant;
 use Contao\Rector\ValueObject\ConstantToServiceParameter;
+use Contao\Rector\ValueObject\LegacyFrameworkCallToFuncCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToInstanceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToStaticCall;
+use Contao\Rector\ValueObject\LegacyFunctionToStaticCall;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
@@ -38,12 +42,6 @@ use Rector\Removing\Rector\Class_\RemoveInterfacesRector;
 use Rector\Renaming\Rector\MethodCall\RenameMethodRector;
 use Rector\Renaming\Rector\Name\RenameClassRector;
 use Rector\Renaming\ValueObject\MethodCallRename;
-use Rector\Transform\Rector\FuncCall\FuncCallToStaticCallRector;
-use Rector\Transform\Rector\MethodCall\MethodCallToFuncCallRector;
-use Rector\Transform\Rector\MethodCall\MethodCallToStaticCallRector;
-use Rector\Transform\ValueObject\FuncCallToStaticCall;
-use Rector\Transform\ValueObject\MethodCallToFuncCall;
-use Rector\Transform\ValueObject\MethodCallToStaticCall;
 use Terminal42\ServiceAnnotationBundle\ServiceAnnotationInterface;
 
 return static function (RectorConfig $rectorConfig): void {
@@ -55,16 +53,16 @@ return static function (RectorConfig $rectorConfig): void {
         \Contao\CoreBundle\Framework\ContaoFrameworkInterface::class => ContaoFramework::class,
     ]);
 
-    $rectorConfig->ruleWithConfiguration(FuncCallToStaticCallRector::class, [
+    $rectorConfig->ruleWithConfiguration(LegacyFunctionToStaticCallRector::class, [
         // Contao 4.1
-        new FuncCallToStaticCall('utf8_convert_encoding', StringUtil::class, 'convertEncoding'),
+        new LegacyFunctionToStaticCall('utf8_convert_encoding', StringUtil::class, 'convertEncoding'),
 
         // Contao 4.2
-        new FuncCallToStaticCall('deserialize', StringUtil::class, 'deserialize'),
-        new FuncCallToStaticCall('specialchars', StringUtil::class, 'specialchars'),
-        new FuncCallToStaticCall('trimsplit', StringUtil::class, 'trimsplit'),
-        new FuncCallToStaticCall('standardize', StringUtil::class, 'standardize'),
-        new FuncCallToStaticCall('strip_insert_tags', StringUtil::class, 'stripInsertTags'),
+        new LegacyFunctionToStaticCall('deserialize', StringUtil::class, 'deserialize'),
+        new LegacyFunctionToStaticCall('specialchars', StringUtil::class, 'specialchars'),
+        new LegacyFunctionToStaticCall('trimsplit', StringUtil::class, 'trimsplit'),
+        new LegacyFunctionToStaticCall('standardize', StringUtil::class, 'standardize'),
+        new LegacyFunctionToStaticCall('strip_insert_tags', StringUtil::class, 'stripInsertTags'),
     ]);
 
     $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToStaticCallRector::class, [
@@ -84,22 +82,22 @@ return static function (RectorConfig $rectorConfig): void {
         new LegacyFrameworkCallToStaticCall(System::class, 'parseDate', Date::class, 'parse'),
     ]);
 
-    $rectorConfig->ruleWithConfiguration(MethodCallToFuncCallRector::class, [
+    $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToFuncCallRector::class, [
         // Contao 4.0
-        new MethodCallToFuncCall(Controller::class, 'classFileExists', 'class_exists')
+        new LegacyFrameworkCallToFuncCall(Controller::class, 'classFileExists', 'class_exists')
     ]);
 
-    $rectorConfig->ruleWithConfiguration(MethodCallToStaticCallRector::class, [
+    $rectorConfig->ruleWithConfiguration(LegacyFrameworkCallToStaticCallRector::class, [
         // Contao 4.0
-        new MethodCallToStaticCall(Environment::class, 'get', Environment::class, 'get'),
-        new MethodCallToStaticCall(Environment::class, 'set', Environment::class, 'set'),
-        new MethodCallToStaticCall(Input::class, 'get', Input::class, 'get'),
-        new MethodCallToStaticCall(Input::class, 'post', Input::class, 'post'),
-        new MethodCallToStaticCall(Input::class, 'postHtml', Input::class, 'postHtml'),
-        new MethodCallToStaticCall(Input::class, 'postRaw', Input::class, 'postRaw'),
+        new LegacyFrameworkCallToStaticCall(Environment::class, 'get', Environment::class, 'get'),
+        new LegacyFrameworkCallToStaticCall(Environment::class, 'set', Environment::class, 'set'),
+        new LegacyFrameworkCallToStaticCall(Input::class, 'get', Input::class, 'get'),
+        new LegacyFrameworkCallToStaticCall(Input::class, 'post', Input::class, 'post'),
+        new LegacyFrameworkCallToStaticCall(Input::class, 'postHtml', Input::class, 'postHtml'),
+        new LegacyFrameworkCallToStaticCall(Input::class, 'postRaw', Input::class, 'postRaw'),
 
         // Contao 4.6
-        new MethodCallToStaticCall(FileUpload::class, 'getMaximumUploadSize', FileUpload::class, 'getMaxUploadSize'),
+        new LegacyFrameworkCallToStaticCall(FileUpload::class, 'getMaximumUploadSize', FileUpload::class, 'getMaxUploadSize'),
     ]);
 
     $rectorConfig->ruleWithConfiguration(RenameMethodRector::class, [
