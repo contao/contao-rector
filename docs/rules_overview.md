@@ -1,4 +1,4 @@
-# 15 Rules Overview
+# 17 Rules Overview
 
 ## ConstantToClassConstantRector
 
@@ -54,6 +54,21 @@ Rewrites session access to the request stack session
 ```diff
 -\Contao\System::getContainer()->get('session');
 +\Contao\System::getContainer()->get('request_stack')->getSession();
+```
+
+<br>
+
+## ContainerToServiceIdRector
+
+Replaces renamed service IDs in `ContainerInterface::get()` calls
+
+:wrench: **configure it!**
+
+- class: [`Contao\Rector\Rector\ContainerToServiceIdRector`](../src/Rector/ContainerToServiceIdRector.php)
+
+```diff
+-$container->get('contao.opt-in');
++$container->get('contao.opt_in');
 ```
 
 <br>
@@ -207,6 +222,21 @@ Replaces text occurrences within a string
 ```diff
 -$foo = '{foo_legend},foo;{bar_legend:hide},bar;{baz_legend:hide},baz';
 +$foo = '{foo_legend},foo;{bar_legend:collapsed},bar;{baz_legend:collapsed},baz';
+```
+
+<br>
+
+## SystemImportToClassConstantRector
+
+Replaces legacy class names in `System::import()` calls with class constants
+
+:wrench: **configure it!**
+
+- class: [`Contao\Rector\Rector\SystemImportToClassConstantRector`](../src/Rector/SystemImportToClassConstantRector.php)
+
+```diff
+-$this->import('BackendUser', 'User');
++$this->import(\Contao\BackendUser::class, 'User');
 ```
 
 <br>

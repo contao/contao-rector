@@ -22,9 +22,11 @@ use Contao\Folder;
 use Contao\FrontendUser;
 use Contao\Rector\Rector\ConstantToServiceCallRector;
 use Contao\Rector\Rector\ContainerSessionToRequestStackSessionRector;
+use Contao\Rector\Rector\ContainerToServiceIdRector;
 use Contao\Rector\Rector\InsertTagsServiceRector;
 use Contao\Rector\Rector\LegacyFrameworkCallToServiceCallRector;
 use Contao\Rector\Rector\ReplaceNestedArrayItemRector;
+use Contao\Rector\Rector\SystemImportToClassConstantRector;
 use Contao\Rector\Rector\SystemLanguagesToServiceRector;
 use Contao\Rector\ValueObject\ConstantToServiceCall;
 use Contao\Rector\ValueObject\LegacyFrameworkCallToServiceCall;
@@ -45,8 +47,6 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Scalar\String_;
-use Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector;
-use Rector\Arguments\ValueObject\ReplaceArgumentDefaultValue;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
@@ -55,7 +55,6 @@ use Rector\Transform\Rector\FuncCall\FuncCallToStaticCallRector;
 use Rector\Transform\Rector\StaticCall\StaticCallToFuncCallRector;
 use Rector\Transform\ValueObject\FuncCallToStaticCall;
 use Rector\Transform\ValueObject\StaticCallToFuncCall;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->ruleWithConfiguration(FuncCallToStaticCallRector::class, [
@@ -199,24 +198,26 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
 
     // Contao 4.13
-    $rectorConfig->ruleWithConfiguration(ReplaceArgumentDefaultValueRector::class, [
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'contao.cache.clear_internal', 'contao.cache.clearer'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'contao.cache.warm_internal', 'contao.cache.warmer'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'contao.crawl.escargot_factory', 'contao.crawl.escargot.factory'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'contao.image.image_factory', 'contao.image.factory'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'contao.image.image_sizes', 'contao.image.sizes'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'contao.image.resizer', 'contao.image.legacy_resizer'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, 'contao.opt-in', 'contao.opt_in'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, Cron::class, 'contao.cron'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, ContaoFrameworkInterface::class, 'contao.framework'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, FigureRenderer::class, 'contao.image.studio.figure_renderer'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, CoreResponseContextFactory::class, 'contao.routing.response_context_factory'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, BackupCodeManager::class, 'contao.security.two_factor.backup_code_manager'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, ContaoExtension::class, 'contao.twig.extension'),
-        new ReplaceArgumentDefaultValue(ContainerInterface::class, 'get', 0, SimpleTokenParser::class, 'contao.string.simple_token_parser'),
+    $rectorConfig->ruleWithConfiguration(ContainerToServiceIdRector::class, [
+        'contao.cache.clear_internal' => 'contao.cache.clearer',
+        'contao.cache.warm_internal' => 'contao.cache.warmer',
+        'contao.crawl.escargot_factory' => 'contao.crawl.escargot.factory',
+        'contao.image.image_factory' => 'contao.image.factory',
+        'contao.image.image_sizes' => 'contao.image.sizes',
+        'contao.image.resizer' => 'contao.image.legacy_resizer',
+        'contao.opt-in' => 'contao.opt_in',
+        Cron::class => 'contao.cron',
+        ContaoFrameworkInterface::class => 'contao.framework',
+        FigureRenderer::class => 'contao.image.studio.figure_renderer',
+        CoreResponseContextFactory::class => 'contao.routing.response_context_factory',
+        BackupCodeManager::class => 'contao.security.two_factor.backup_code_manager',
+        ContaoExtension::class => 'contao.twig.extension',
+        SimpleTokenParser::class => 'contao.string.simple_token_parser',
+    ]);
 
-        new ReplaceArgumentDefaultValue(System::class, 'import', 0, 'BackendUser', new ClassConstFetch(new FullyQualified(BackendUser::class), 'class')),
-        new ReplaceArgumentDefaultValue(System::class, 'import', 0, 'FrontendUser', new ClassConstFetch(new FullyQualified(FrontendUser::class), 'class')),
+    $rectorConfig->ruleWithConfiguration(SystemImportToClassConstantRector::class, [
+        'BackendUser' => BackendUser::class,
+        'FrontendUser' => FrontendUser::class,
     ]);
 
     // Contao 4.12
